@@ -125,24 +125,52 @@
     const marriageBtn = document.getElementById('marriageBtn');
     const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
 
-    liveBirthBtn.addEventListener('click', () => {
-      confirmationModal.show();
-    });
+    let activeType = "livebirth"; // default
 
-    marriageBtn.addEventListener('click', () => {
-      confirmationModal.show();
-    });
+// Event listeners for each button
+liveBirthBtn.addEventListener('click', () => {
+  activeType = "livebirth";
+  // Update modal title to be more specific
+  document.getElementById('modalLabel').textContent = "Are you requesting a Live Birth certificate for yourself?";
+  confirmationModal.show();
+});
 
-    function handleYes() {
-      confirmationModal.hide();
-      window.location.href = 'livebirthyes.html';
-    }
+marriageBtn.addEventListener('click', () => {
+  activeType = "marriage";
+  // Update modal title to be more specific about marriage certificate
+  document.getElementById('modalLabel').textContent = "Are you requesting a Marriage certificate for yourself?";
+  confirmationModal.show();
+});
 
-    function handleNo() {
-      confirmationModal.hide();
-      window.location.href = 'livebirthno.html';
+deathBtn.addEventListener('click', () => {
+  activeType = "death";
+  // Update modal title to be more specific
+  document.getElementById('modalLabel').textContent = "Are you the authorized representative for this Death certificate?";
+  confirmationModal.show();
+});
 
-    }
+function handleYes() {
+  confirmationModal.hide();
+  if (activeType === "livebirth") {
+    window.location.href = "livebirthyes.html";
+  } else if (activeType === "marriage") {
+    window.location.href = "marriageyes.html";
+  } else if (activeType === "death") {
+    window.location.href = "deathyes.html";
+  }
+}
+
+function handleNo() {
+  confirmationModal.hide();
+  if (activeType === "livebirth") {
+    window.location.href = "livebirthno.html";
+  } else if (activeType === "marriage") {
+    window.location.href = "marriageno.html";
+  } else if (activeType === "death") {
+    window.location.href = "deathno.html";
+  }
+}
+
   </script>
 </body>
 </html>

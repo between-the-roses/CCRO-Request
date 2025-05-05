@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Birth Certificate - Not Requesting for Self</title>
+  <title>Marriage Certificate Form - Request for Others</title>
 
+  <!-- Bootstrap & Boxicons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
@@ -13,6 +14,7 @@
       font-family: "Poppins", sans-serif;
       background-color: #f9f9f9;
     }
+
     header {
       background-color: white;
       position: fixed;
@@ -22,14 +24,17 @@
       padding: 20px 30px;
       box-shadow: 0 8px 11px rgba(14, 55, 54, 0.15);
     }
+
     .logo-img {
       height: 45px;
       margin-right: 15px;
     }
+
     main {
       padding-top: 120px;
       padding-bottom: 40px;
     }
+
     .form-box {
       background-color: #f0f9f3;
       border-radius: 20px;
@@ -37,26 +42,38 @@
       margin-bottom: 30px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
+
     h1 {
       font-size: 2rem;
       font-weight: 700;
     }
+
     h3 {
       font-weight: 600;
       margin-bottom: 20px;
     }
+
+    h4 {
+      font-weight: 500;
+      color: #38bdf8;
+      margin-bottom: 15px;
+    }
+
     .btn-next {
       background-color: #38bdf8;
       color: white;
     }
+
     .btn-add {
       background-color: #d2f8d2;
     }
+
     .required::after {
       content: " *";
       color: red;
       font-weight: bold;
     }
+    
     /* Styles for checklist modal */
     .checklist-modal .modal-content {
       border-radius: 20px;
@@ -101,76 +118,138 @@
 
   <!-- Main Content -->
   <main class="container">
-    <h1 class="mb-4 text-center text-lg-start">Birth Certificate Details</h1>
+    <h1 class="mb-4 text-center text-lg-start">Marriage Certificate Details</h1>
 
-    <!-- Initial Certificate -->
+    <!-- First Certificate -->
     <div class="form-box">
-      <form class="birth-form" id="birthCertForm">
+      <form class="marriage-form" id="marriageCertForm">
         <h3>Certificate #1</h3>
-        <h4 class="mt-3 mb-3">Complete Name of the Requesting Party</h4>
 
-
-        <div class="row g-3">
-          <div class="col-md-4"><label class="form-label required">First Name</label><input type="text" class="form-control" required /></div>
-          <div class="col-md-4"><label class="form-label">Middle Name</label><input type="text" class="form-control" /></div>
-          <div class="col-md-4"><label class="form-label required">Last Name</label><input type="text" class="form-control" required /></div>
-          <div class="col-md-6"><label class="form-label required">Address</label><input type="text" class="form-control" required /></div>
-          <div class="col-md-3"><label class="form-label required">Relationship to the Child</label>
-            <select class="form-select" required>
-              <option disabled selected>Relationship</option>
-              <option>Parent</option>
-              <option>Guardian</option>
-            </select>
+        <!-- Requesting Party Info -->
+        <div class="mb-4">
+          <h4>Complete name of the Requesting Party</h4>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label required">First Name</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Last Name</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label required">Address</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Relationship to the Document Owner</label>
+              <select class="form-select" required>
+                <option selected disabled>Choose...</option>
+                <option>Spouse</option>
+                <option>Child</option>
+                <option>Parent</option>
+                <option>Relative</option>
+                <option>Legal Representative</option>
+                <option>Others</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Purpose of the Certification</label>
+              <select class="form-select" required>
+                <option selected disabled>Choose...</option>
+                <option>Legal Purposes</option>
+                <option>Immigration</option>
+                <option>Benefits Claim</option>
+                <option>Employment</option>
+                <option>Others</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label required">Upload Authorization Letter</label>
+              <input type="file" class="form-control" required />
+            </div>
           </div>
-          <div class="col-md-3"><label class="form-label required">Purpose of the Certification</label>
-            <select class="form-select" required>
-              <option disabled selected>Purpose</option>
-              <option>Enrollment</option>
-              <option>Legal</option>
-            </select>
-          </div>
-          <div class="col-md-12"><label class="form-label required">Upload Authorization Letter</label><input type="file" class="form-control" required /></div>
         </div>
 
         <hr class="my-4" />
-        <div class="row g-3">
-          <div class="col-md-6"><label class="form-label">Registry Number (Optional)</label><input type="text" class="form-control" /></div>
-          <div class="col-md-6"><label class="form-label required">Number of Copies</label>
-            <select class="form-select" required>
-              <option disabled selected>Choose...</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-            </select>
+
+        <!-- Certificate Info -->
+        <div class="mb-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Registry Number (Optional)</label>
+              <input type="text" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Number of Copies</label>
+              <select class="form-select" required>
+                <option selected disabled>Choose...</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <hr class="my-4" />
-        <h4>Person/Child Information</h4>
-        <div class="row g-3">
-          <div class="col-md-4"><label class="form-label required">First Name</label><input type="text" class="form-control" required /></div>
-          <div class="col-md-4"><label class="form-label">Middle Name</label><input type="text" class="form-control" /></div>
-          <div class="col-md-4"><label class="form-label required">Last Name</label><input type="text" class="form-control" required /></div>
-          <div class="col-md-6"><label class="form-label required">Date of Birth</label><input type="date" class="form-control" required /></div>
-          <div class="col-md-6"><label class="form-label required">Place of Birth</label><input type="text" class="form-control" required /></div>
+        <!-- Husband Info -->
+        <div class="mb-4">
+          <h3>Complete Name of the Husband</h3>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label required">First Name</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Last Name</label>
+              <input type="text" class="form-control" required />
+            </div>
+          </div>
         </div>
 
-        <hr class="my-4" />
-        <h4>Complete Name of the Father</h4>
-        <div class="row g-3">
-          <div class="col-md-4"><label class="form-label required">First Name</label><input type="text" class="form-control" required /></div>
-          <div class="col-md-4"><label class="form-label">Middle Name</label><input type="text" class="form-control" /></div>
-          <div class="col-md-4"><label class="form-label required">Last Name</label><input type="text" class="form-control" required /></div>
+        <!-- Wife Info -->
+        <div class="mb-4">
+          <h3>Complete Name of the Wife</h3>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label required">First Name</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Last Name</label>
+              <input type="text" class="form-control" required />
+            </div>
+          </div>
         </div>
 
-        <h4 class="mt-3">Mother's Maiden Name</h4>
-        <div class="row g-3">
-          <div class="col-md-4"><label class="form-label required">First Name</label><input type="text" class="form-control" required /></div>
-          <div class="col-md-4"><label class="form-label">Middle Name</label><input type="text" class="form-control" /></div>
-          <div class="col-md-4"><label class="form-label required">Last Name</label><input type="text" class="form-control" required /></div>
+        <!-- Marriage Details -->
+        <div class="mb-4">
+          <h3>Marriage Details</h3>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label required">Date of Marriage</label>
+              <input type="date" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Place of Marriage</label>
+              <input type="text" class="form-control" required />
+            </div>
+          </div>
         </div>
 
-        <!-- Buttons -->
+        <!-- Action Buttons -->
         <div class="d-flex justify-content-between mt-4">
           <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
           <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
@@ -184,7 +263,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="confirmModalLabel">Are you requesting for yourself?</h5>
+          <h5 class="modal-title" id="confirmModalLabel">Are you requesting for the same person?</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-footer">
@@ -208,7 +287,7 @@
             Please check the following requirements. You cannot proceed if any requirement is incomplete.
           </div>
           <div class="alert alert-warning" id="checklistWarning" style="display: none;">
-            <strong>Warning:</strong> You must select at least one ID and check the Authorization Letter to proceed.
+            <strong>Warning:</strong> You must select at least one ID to proceed.
           </div>
           <div class="mb-3">
             <div class="fw-bold mb-2">✓ The ID's that are available to you</div>
@@ -257,13 +336,6 @@
             </div>
           </div>
           
-          <hr class="my-4">
-          
-          <div class="checklist-item mt-3">
-            <input class="form-check-input" type="checkbox" id="authLetter">
-            <label class="form-check-label" for="authLetter">Authorization Letter</label>
-          </div>
-          
           <div class="d-flex justify-content-center mt-4">
             <button type="button" class="proceed-btn" onclick="proceedToNextStep()" disabled>PROCEED</button>
           </div>
@@ -272,10 +344,12 @@
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- JavaScript Logic -->
   <script>
-    let certCount = 1;
+    let certCountNo = 1;
     
     // Add event listeners to all checkboxes in checklist
     document.addEventListener('DOMContentLoaded', function() {
@@ -289,11 +363,10 @@
     function validateChecklist() {
       const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
       const anyIdSelected = Array.from(idCheckboxes).some(checkbox => checkbox.checked);
-      const authLetterChecked = document.getElementById('authLetter').checked;
       const warningElement = document.getElementById('checklistWarning');
       const proceedButton = document.querySelector('.proceed-btn');
       
-      if (anyIdSelected && authLetterChecked) {
+      if (anyIdSelected) {
         // Enable the proceed button and hide warning
         proceedButton.disabled = false;
         warningElement.style.display = 'none';
@@ -306,7 +379,7 @@
     
     // Function to validate the form before showing checklist
     function validateAndShowChecklist() {
-      const form = document.getElementById('birthCertForm');
+      const form = document.getElementById('marriageCertForm');
       
       // Add 'was-validated' class to show validation feedback
       form.classList.add('was-validated');
@@ -320,7 +393,6 @@
         // Reset checklist state
         const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
         idCheckboxes.forEach(checkbox => checkbox.checked = false);
-        document.getElementById('authLetter').checked = false;
         
         // Ensure the proceed button is disabled initially
         document.querySelector('.proceed-btn').disabled = true;
@@ -341,16 +413,13 @@
       const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
       const anyIdSelected = Array.from(idCheckboxes).some(checkbox => checkbox.checked);
       
-      // Double-check if authorization letter is checked
-      const authLetterChecked = document.getElementById('authLetter').checked;
-      
-      if (anyIdSelected && authLetterChecked) {
+      if (anyIdSelected) {
         // Hide the modal
         const checklistModal = bootstrap.Modal.getInstance(document.getElementById('checklistModal'));
         checklistModal.hide();
         
         // Submit the form
-        document.getElementById('birthCertForm').submit();
+        document.getElementById('marriageCertForm').submit();
       } else {
         // Show visual indicators for missing requirements
         const warningElement = document.getElementById('checklistWarning');
@@ -362,131 +431,178 @@
           warningElement.classList.remove('animate__animated', 'animate__shakeX');
         }, 1000);
         
-        if (!anyIdSelected) {
-          // Highlight ID section
-          const idSection = document.querySelector('#checklistModal .fw-bold.mb-2');
-          idSection.classList.add('text-danger');
-          setTimeout(() => idSection.classList.remove('text-danger'), 3000);
-        } 
-        
-        if (!authLetterChecked) {
-          // Highlight authorization letter label
-          const authLabel = document.querySelector('label[for="authLetter"]');
-          authLabel.classList.add('text-danger', 'fw-bold');
-          setTimeout(() => {
-            authLabel.classList.remove('text-danger', 'fw-bold');
-          }, 3000);
-        }
+        // Highlight ID section
+        const idSection = document.querySelector('#checklistModal .fw-bold.mb-2');
+        idSection.classList.add('text-danger');
+        setTimeout(() => idSection.classList.remove('text-danger'), 3000);
       }
     }
-  
+
     function showConfirmation() {
-      const modal = new bootstrap.Modal(document.getElementById("confirmModal"));
+      const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
       modal.show();
     }
-  
+
     function handleYes() {
-      const modal = bootstrap.Modal.getInstance(document.getElementById("confirmModal"));
+      const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
       modal.hide();
-      createNoSelfFields(true); // YES = remove requester info
+      addSamePersonCertificate();
     }
 
     function handleNo() {
-      const modal = bootstrap.Modal.getInstance(document.getElementById("confirmModal"));
+      const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
       modal.hide();
-      createNoSelfFields(false); // NO = clone entire form, including requester info
+      addDifferentPersonCertificate();
     }
 
-    function createNoSelfFields(cloneOnlyChildSection = false) {
+    function addSamePersonCertificate() {
       const container = document.querySelector("main");
       const allCerts = document.querySelectorAll(".form-box");
+      const firstCert = allCerts[0]; // Always clone data from Cert #1
       const lastCert = allCerts[allCerts.length - 1];
 
-      // Remove buttons from previous certificate
       const oldBtns = lastCert.querySelector(".d-flex.justify-content-between");
       if (oldBtns) oldBtns.remove();
 
-      const wrapper = document.createElement("div");
-      wrapper.classList.add("form-box", "mt-4");
+      const newCert = lastCert.cloneNode(true); // Clone layout from lastCert
+      certCountNo++;
 
-      const firstForm = document.querySelector(".form-box form");
+      const form = newCert.querySelector("form");
+      form.className = "marriage-form";
+      form.id = `marriageCertForm${certCountNo}`;
+      form.querySelector("h3").textContent = `Certificate #${certCountNo}`;
 
-      const newForm = document.createElement("form");
-      newForm.className = "birth-form";
-      newForm.innerHTML = `<h3>Certificate #${++certCount}</h3>`;
+      // Copy values from first certificate into newCert (excluding requester info)
+      const firstHusbandFields = firstCert.querySelectorAll(".mb-4:nth-of-type(3) input");
+      const firstWifeFields = firstCert.querySelectorAll(".mb-4:nth-of-type(4) input");
+      const firstMarriageFields = firstCert.querySelectorAll(".mb-4:nth-of-type(5) input");
+      
+      const newHusbandFields = newCert.querySelectorAll(".mb-4:nth-of-type(3) input");
+      const newWifeFields = newCert.querySelectorAll(".mb-4:nth-of-type(4) input");
+      const newMarriageFields = newCert.querySelectorAll(".mb-4:nth-of-type(5) input");
 
-      if (cloneOnlyChildSection) {
-        const headersToCopy = [
-          "Person/Child Information",
-          "Complete Name of the Father",
-          "Mother's Maiden Name"
-        ];
+      // Copy husband info
+      firstHusbandFields.forEach((input, i) => {
+        if (input.type !== "button" && input.type !== "submit") {
+          newHusbandFields[i].value = input.value;
+        }
+      });
+      
+      // Copy wife info
+      firstWifeFields.forEach((input, i) => {
+        if (input.type !== "button" && input.type !== "submit") {
+          newWifeFields[i].value = input.value;
+        }
+      });
+      
+      // Copy marriage details
+      firstMarriageFields.forEach((input, i) => {
+        if (input.type !== "button" && input.type !== "submit") {
+          newMarriageFields[i].value = input.value;
+        }
+      });
 
-        headersToCopy.forEach(headerText => {
-          const header = Array.from(firstForm.querySelectorAll("h4"))
-            .find(h => h.textContent.trim() === headerText);
-          if (header) {
-            let node = header;
-            while (node && (node.tagName !== "H3")) {
-              newForm.appendChild(node.cloneNode(true));
-              node = node.nextElementSibling;
-              if (node?.tagName === "H4") break;
-            }
-          }
-        });
-      } else {
-        // Full clone including values
-        const clonedHTML = firstForm.innerHTML.replace(/<h3>Certificate #\d+<\/h3>/, "");
-        newForm.innerHTML += clonedHTML;
+      // Remove any existing remove button to avoid duplicates
+      const oldRemoveBtn = newCert.querySelector(".btn-danger");
+      if (oldRemoveBtn) oldRemoveBtn.remove();
 
-        const firstInputs = firstForm.querySelectorAll("input, select");
-        const newInputs = newForm.querySelectorAll("input, select");
-
-        firstInputs.forEach((input, index) => {
-          if (input.type === "checkbox" || input.type === "radio") {
-            newInputs[index].checked = input.checked;
-          } else {
-            newInputs[index].value = input.value;
-          }
-        });
-      }
-
-      // Remove any previous remove button
-      const prevRemoveBtn = newForm.querySelector(".btn-danger");
-      if (prevRemoveBtn) prevRemoveBtn.remove();
-
-      // Update the Next button to use validateAndShowChecklist
+      // Add action buttons
       const btnGroup = document.createElement("div");
       btnGroup.className = "d-flex justify-content-between mt-4";
       btnGroup.innerHTML = `
         <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
         <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
       `;
-      newForm.appendChild(btnGroup);
+      form.appendChild(btnGroup);
 
-      // Add remove button
+      // Add a new clean remove button
       const removeBtn = document.createElement("button");
       removeBtn.className = "btn btn-danger mt-3";
       removeBtn.type = "button";
       removeBtn.textContent = "Remove Certificate";
       removeBtn.onclick = () => {
-        wrapper.remove();
-        certCount--;
+        newCert.remove();
+        certCountNo--;
         restoreButtonsToLastCert();
       };
-      newForm.appendChild(removeBtn);
+      form.appendChild(removeBtn);
 
-      wrapper.appendChild(newForm);
-      container.appendChild(wrapper);
+      container.appendChild(newCert);
     }
-  
+
+    function addDifferentPersonCertificate() {
+      const container = document.querySelector("main");
+      const allCerts = document.querySelectorAll(".form-box");
+      const lastCert = allCerts[allCerts.length - 1];
+
+      const oldBtns = lastCert.querySelector(".d-flex.justify-content-between");
+      if (oldBtns) oldBtns.remove();
+
+      const newCert = lastCert.cloneNode(true); // Clone layout from lastCert
+      certCountNo++;
+
+      const form = newCert.querySelector("form");
+      form.className = "marriage-form";
+      form.id = `marriageCertForm${certCountNo}`;
+      form.querySelector("h3").textContent = `Certificate #${certCountNo}`;
+
+      // Clear all inputs in the new certificate except requester info
+      const inputs = newCert.querySelectorAll(".mb-4:not(:first-child) input, .mb-4:not(:first-child) select");
+      inputs.forEach(input => {
+        if (input.type === "date") {
+          input.valueAsDate = null;
+        } else if (input.type !== "file") {
+          input.value = input.type === "select-one" ? "" : "";
+        }
+      });
+
+      // Preserve requester info (first section)
+      const firstCert = allCerts[0];
+      const firstRequesterFields = firstCert.querySelectorAll(".mb-4:first-of-type input, .mb-4:first-of-type select");
+      const newRequesterFields = newCert.querySelectorAll(".mb-4:first-of-type input, .mb-4:first-of-type select");
+      
+      firstRequesterFields.forEach((input, i) => {
+        if (input.type !== "button" && input.type !== "submit" && input.type !== "file") {
+          newRequesterFields[i].value = input.value;
+        }
+      });
+
+      // Remove any existing remove button to avoid duplicates
+      const oldRemoveBtn = newCert.querySelector(".btn-danger");
+      if (oldRemoveBtn) oldRemoveBtn.remove();
+
+      // Add action buttons
+      const btnGroup = document.createElement("div");
+      btnGroup.className = "d-flex justify-content-between mt-4";
+      btnGroup.innerHTML = `
+        <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
+        <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
+      `;
+      form.appendChild(btnGroup);
+
+      // Add a new clean remove button
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "btn btn-danger mt-3";
+      removeBtn.type = "button";
+      removeBtn.textContent = "Remove Certificate";
+      removeBtn.onclick = () => {
+        newCert.remove();
+        certCountNo--;
+        restoreButtonsToLastCert();
+      };
+      form.appendChild(removeBtn);
+
+      container.appendChild(newCert);
+    }
+
     function restoreButtonsToLastCert() {
       const allCerts = document.querySelectorAll(".form-box");
       if (allCerts.length === 0) return;
-  
+
       const lastCert = allCerts[allCerts.length - 1];
       const form = lastCert.querySelector("form");
-  
+
+      // Only restore if not already present
       if (!form.querySelector(".btn-add")) {
         const btnGroup = document.createElement("div");
         btnGroup.className = "d-flex justify-content-between mt-4";
