@@ -153,8 +153,13 @@
         }
         
         function selectOption(option) {
-            alert("You selected: " + option + "\nThis would typically redirect to the next step in the process.");
-            // Here you would typically redirect to another page or show another modal
+            if (option === 'pickup') {
+                // Redirect to the pickup form page
+                window.location.href = 'pickup-form.html';
+            } else if (option === 'delivery') {
+                // Redirect to the delivery form page
+                window.location.href = 'delivery-form.html';
+            }
         }
     </script>
 </body>
