@@ -11,7 +11,7 @@
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: url('images/background.png') no-repeat center center fixed;
+      background: url('../images/background.png') no-repeat center center fixed;
       background-size: cover;
       color: #333;
       margin: 0;
@@ -76,8 +76,8 @@
   <!-- Header -->
   <header class="d-flex align-items-center justify-content-between">
     <div class="d-flex align-items-center">
-      <img src="images/Logo 2.png" alt="Logo 2" class="logo-img" />
-      <img src="images/Logo 1.png" alt="Logo 1" class="logo-img" />
+      <img src="../images/Logo 2.png" alt="Logo 2" class="logo-img" />
+      <img src="../images/Logo 1.png" alt="Logo 1" class="logo-img" />
     </div>
   </header>
 
@@ -87,8 +87,8 @@
       <!-- Left Column -->
       <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center text-center text-lg-start px-5">
         <div class="d-flex gap-4 mb-4">
-          <img src="images/Logo 1.png" alt="Logo 1" class="logo-stack-img" />
-          <img src="images/Logo 2.png" alt="Logo 2" class="logo-stack-img" />
+          <img src="../images/Logo 1.png" alt="Logo 1" class="logo-stack-img" />
+          <img src="../images/Logo 2.png" alt="Logo 2" class="logo-stack-img" />
         </div>
         <h1 class="display-3 fw-bold">Iligan Civil Registry</h1>
         <h2 class="text-primary fw-semibold fs-1">Online Appointment System</h2>
@@ -96,9 +96,9 @@
 
       <!-- Right Column -->
       <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center gap-4 px-5">
-        <button id="liveBirthBtn" class="btn-option w-100"><i class="bx bx-user-plus"></i> LIVE BIRTH</button>
+        <button id="liveBirthBtn" class="btn-option w-100"><i class="bx bx-user"></i> LIVE BIRTH</button>
         <button id="marriageBtn" class="btn-option w-100"><i class="bx bx-heart"></i> MARRIAGE</button>
-        <button id="deathBtn" class="btn-option w-100"><i class="bx bx-skull"></i> DEATH</button>
+        <button id="deathBtn" class="btn-option w-100"><i class="bx bx-plus-medical"></i> DEATH</button>
       </div>
     </div>
   </div>
@@ -123,6 +123,7 @@
   <script>
     const liveBirthBtn = document.getElementById('liveBirthBtn');
     const marriageBtn = document.getElementById('marriageBtn');
+    const deathBtn = document.getElementById('deathBtn');
     const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
 
     let activeType = "livebirth"; // default
@@ -152,25 +153,25 @@ deathBtn.addEventListener('click', () => {
 function handleYes() {
   confirmationModal.hide();
   if (activeType === "livebirth") {
-    window.location.href = "livebirthyes.html";
+    window.location.href = "Birth/livebirthyes.html";
   } else if (activeType === "marriage") {
-    window.location.href = "marriageyes.html";
+    window.location.href = "Marriage/marriageyes.html";
   } else if (activeType === "death") {
-    window.location.href = "deathyes.html";
+    window.location.href = "Death/deathyes.html";
   }
 }
 
 function handleNo() {
   confirmationModal.hide();
   if (activeType === "livebirth") {
-    window.location.href = "livebirthno.html";
+    window.location.href = "Birth/livebirthno.html";
   } else if (activeType === "marriage") {
-    window.location.href = "marriageno.html";
+    window.location.href = "Marriage/marriageno.html";
   } else if (activeType === "death") {
-    window.location.href = "deathno.html";
+    window.location.href = "Death/deathno.html";
   }
 }
 
-  </script>
+</script>
 </body>
 </html>

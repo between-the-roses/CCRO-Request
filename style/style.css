@@ -87,7 +87,7 @@ header {
 }
 /*Home*/
 .hero-section {
-    background: url('images/background.png')no-repeat center center;
+    background: url('../images/background.png')no-repeat center center;
     background-size: 100% auto;   
     background-repeat: no-repeat;
     background-color: #f0f0f0;    

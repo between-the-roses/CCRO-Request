@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Marriage Certificate Form</title>
+  <title>Death Certificate Form</title>
 
   <!-- Bootstrap & Boxicons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -106,17 +106,17 @@
 
   <!-- Header -->
   <header class="d-flex align-items-center">
-    <img src="images/Logo 1.png" alt="Logo 1" class="logo-img" />
-    <img src="images/Logo 2.png" alt="Logo 2" class="logo-img" />
+    <img src="../../images/Logo 1.png" alt="Logo 1" class="logo-img" />
+    <img src="../../images/Logo 2.png" alt="Logo 2" class="logo-img" />
   </header>
 
   <!-- Main Content -->
   <main class="container">
-    <h1 class="mb-4 text-center text-lg-start">Marriage Certificate Details</h1>
+    <h1 class="mb-4 text-center text-lg-start">Death Certificate Details</h1>
 
     <!-- First Certificate -->
     <div class="form-box">
-      <form class="marriage-form" id="marriageCertForm">
+      <form class="death-form" id="deathCertForm">
         <h3>Certificate #1</h3>
 
         <!-- Certificate Info -->
@@ -138,9 +138,9 @@
           </div>
         </div>
 
-        <!-- Husband Info -->
+        <!-- Deceased Person Info -->
         <div class="mb-4">
-          <h3>Complete Name of the Husband</h3>
+          <h3>Deceased Person Information</h3>
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label required">First Name</label>
@@ -154,38 +154,55 @@
               <label class="form-label required">Last Name</label>
               <input type="text" class="form-control" required />
             </div>
-          </div>
-        </div>
-
-        <!-- Wife Info -->
-        <div class="mb-4">
-          <h3>Complete Name of the Wife</h3>
-          <div class="row g-3">
             <div class="col-md-4">
-              <label class="form-label required">First Name</label>
-              <input type="text" class="form-control" required />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Middle Name</label>
-              <input type="text" class="form-control" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label required">Last Name</label>
-              <input type="text" class="form-control" required />
-            </div>
-          </div>
-        </div>
-
-        <!-- Marriage Details -->
-        <div class="mb-4">
-          <h3>Marriage Details</h3>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label required">Date of Marriage</label>
+              <label class="form-label required">Date of Birth</label>
               <input type="date" class="form-control" required />
             </div>
+            <div class="col-md-4">
+              <label class="form-label required">Date of Death</label>
+              <input type="date" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Age</label>
+              <input type="number" min="0" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Sex</label>
+              <select class="form-select" required>
+                <option selected disabled>Choose...</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label required">Place of Death</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Civil Status</label>
+              <select class="form-select" required>
+                <option selected disabled>Choose...</option>
+                <option>Single</option>
+                <option>Married</option>
+                <option>Widowed</option>
+                <option>Divorced</option>
+                <option>Separated</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Religion</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Citizenship</label>
+              <input type="text" class="form-control" required />
+            </div>
             <div class="col-md-6">
-              <label class="form-label required">Place of Marriage</label>
+              <label class="form-label required">Residence</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Occupation</label>
               <input type="text" class="form-control" required />
             </div>
           </div>
@@ -321,7 +338,7 @@
     
     // Function to validate the form before showing checklist
     function validateAndShowChecklist() {
-      const form = document.getElementById('marriageCertForm');
+      const form = document.getElementById('deathCertForm');
       
       // Add 'was-validated' class to show validation feedback
       form.classList.add('was-validated');
@@ -361,7 +378,7 @@
         checklistModal.hide();
         
         // Submit the form
-        document.getElementById('marriageCertForm').submit();
+        document.getElementById('deathCertForm').submit();
       } else {
         // Show visual indicators for missing requirements
         const warningElement = document.getElementById('checklistWarning');
@@ -394,7 +411,7 @@
     function handleNo() {
       const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
       modal.hide();
-      addDifferentRequester();
+      window.location.href = 'deathno.html'; // Redirect to the "requesting for another person" page
     }
 
     function cloneFieldsYes() {
@@ -410,8 +427,8 @@
       certCountYes++;
 
       const form = newCert.querySelector("form");
-      form.className = "marriage-form";
-      form.id = `marriageCertForm${certCountYes}`;
+      form.className = "death-form";
+      form.id = `deathCertForm${certCountYes}`;
       form.querySelector("h3").textContent = `Certificate #${certCountYes}`;
 
       // Copy values from first certificate into newCert
@@ -469,10 +486,6 @@
         `;
         form.appendChild(btnGroup);
       }
-    }
-
-    function addDifferentRequester() {
-      window.location.href = 'marriageno.html';
     }
   </script>
 </body>
