@@ -1,3 +1,4 @@
+<?php include "includes/navbar.php"; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,8 @@
   <!-- Bootstrap & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/fontawesome.min.css" />
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -15,16 +18,6 @@
       background-size: cover;
       color: #333;
       margin: 0;
-    }
-
-    header {
-      background-color: white;
-      box-shadow: 0 8px 11px rgba(14, 55, 54, 0.15);
-      padding: 20px 30px;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
     }
 
     .logo-img {
@@ -72,14 +65,8 @@
   </style>
 </head>
 <body>
-
-  <!-- Header -->
-  <header class="d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center">
-      <img src="../images/Logo 2.png" alt="Logo 2" class="logo-img" />
-      <img src="../images/Logo 1.png" alt="Logo 1" class="logo-img" />
-    </div>
-  </header>
+  <!-- Navbar -->
+  <?php include "includes/navbar.php"; ?>
 
   <!-- Main Fullscreen Layout -->
   <div class="container-fluid full-height d-flex align-items-center">
@@ -152,24 +139,12 @@ deathBtn.addEventListener('click', () => {
 
 function handleYes() {
   confirmationModal.hide();
-  if (activeType === "livebirth") {
-    window.location.href = "Birth/livebirthyes.html";
-  } else if (activeType === "marriage") {
-    window.location.href = "Marriage/marriageyes.html";
-  } else if (activeType === "death") {
-    window.location.href = "Death/deathyes.html";
-  }
+  window.location.href = "../backend/verify.php?type=" + encodeURIComponent(activeType) + "&self=yes";
 }
 
 function handleNo() {
   confirmationModal.hide();
-  if (activeType === "livebirth") {
-    window.location.href = "Birth/livebirthno.html";
-  } else if (activeType === "marriage") {
-    window.location.href = "Marriage/marriageno.html";
-  } else if (activeType === "death") {
-    window.location.href = "Death/deathno.html";
-  }
+  window.location.href = "../backend/verify.php?type=" + encodeURIComponent(activeType) + "&self=no";
 }
 
 </script>

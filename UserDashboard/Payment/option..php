@@ -124,7 +124,7 @@
     
     <!-- First Modal - Document Found Message -->
     <div class="modal-container" id="documentFoundModal">
-        <div class="modal">
+delivery-payment        <div class="modal">
             <h2>Document Found!</h2>
             <p>Your requested document has been found and is ready for processing. Please click Next to choose your preferred delivery method.</p>
             <button class="button next-button" onclick="showOptionsModal()">Next</button>

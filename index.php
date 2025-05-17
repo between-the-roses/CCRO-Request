@@ -25,26 +25,11 @@
         background: url("images/background.png") no-repeat center center fixed;
         background-size: cover;
       }
-
-      header {
-        background-color: white;
-        box-shadow: 0 8px 11px rgba(14, 55, 54, 0.15);
-        padding: 20px 30px;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 1000;
-      }
-
-      .hero-section {
-        padding-top: 120px;
-      }
-
       .modal-custom {
         background-color: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(4px);
       }
-
+      
       .modal-header .bx {
         font-size: 2rem;
         color: #f44336;
@@ -59,14 +44,7 @@
   </head>
 
   <body>
-    <!-- Navbar -->
-    <header class="d-flex justify-content-between align-items-center">
-      <div class="d-flex align-items-center gap-3">
-        <img src="images/Logo 2.png" alt="Logo 2" style="height: 45px" />
-        <img src="images/Logo 1.png" alt="Logo 1" style="height: 45px" />
-      </div>
-      <a href="admin.html" class="btn btn-info text-white">Admin Panel</a>
-    </header>
+    <?php include "UserDashboard/includes/navbar.php"; ?>
 
     <!-- Hero Section -->
     <section class="hero-section container py-5 text-center text-md-start">
@@ -256,8 +234,31 @@
 
     nextButton.addEventListener("click", () => {
       reminderModal.hide();
-      window.location.href = "UserDashboard/certificatetype.html";
+      window.location.href = "UserDashboard/certificatetype.php";
     });
   </script>
+
+  <div id="g_id_onload"
+     data-client_id="585336830805-9lsmkhp6aom493iou16hunqhlhb2rd9a.apps.googleusercontent.com"
+     data-login_uri="../auth/verify.php"
+     data-auto_prompt="false">
+</div>
+
+<div class="g_id_signin"
+     data-type="standard"
+     data-size="large"
+     data-theme="outline"
+     data-text="sign_in_with"
+     data-shape="rectangular"
+     data-logo_alignment="left">
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<form method="POST" action="send_otp.php">
+  <input type="text" name="phone" placeholder="Enter your phone number" required>
+  <button type="submit">Send OTP</button>
+</form>
+
   </body>
 </html>
