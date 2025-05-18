@@ -92,13 +92,6 @@
   </style>
 </head>
 <body>
-
-  <!-- Header -->
-  <header class="d-flex align-items-center">
-    <img src="../../images/Logo 1.png" alt="Logo 1" class="logo-img" />
-    <img src="../../images/Logo 2.png" alt="Logo 2" class="logo-img" />
-  </header>
-
   <!-- Main Content -->
   <main class="container">
     <h1 class="mb-4 text-center text-lg-start">Death Certificate Details</h1>

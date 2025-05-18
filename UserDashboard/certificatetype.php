@@ -1,4 +1,10 @@
-<?php include "includes/navbar.php"; ?>
+<?php
+session_start();
+
+include "../backend/db.php";
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -139,12 +145,12 @@ deathBtn.addEventListener('click', () => {
 
 function handleYes() {
   confirmationModal.hide();
-  window.location.href = "../backend/verify.php?type=" + encodeURIComponent(activeType) + "&self=yes";
+  window.location.href = "../auth/verify.php?type=" + encodeURIComponent(activeType) + "&self=yes";
 }
 
 function handleNo() {
   confirmationModal.hide();
-  window.location.href = "../backend/verify.php?type=" + encodeURIComponent(activeType) + "&self=no";
+  window.location.href = "../auth/verify.php?type=" + encodeURIComponent(activeType) + "&self=no";
 }
 
 </script>

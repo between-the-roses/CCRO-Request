@@ -1,3 +1,85 @@
+<?php
+// filepath: c:\xampp\htdocs\Thesis-\UserDashboard\Death\deathyes.php
+include "../../backend/db.php";
+include "../includes/navbar.php";
+
+if (!$conn) {
+  echo "<div class='alert alert-danger mt-3'>Database connection failed.</div>";
+  exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Collect and sanitize form data
+    $contactno = trim($_POST['contactno']);
+    $address = trim($_POST['address']);
+    $relationship = trim($_POST['relationship']);
+    $purpose = trim($_POST['purpose']);
+    $email_address = trim($_POST['email_address']);
+    $fullname = trim($_POST['deceased_firstname'] . ' ' . $_POST['deceased_middlename'] . ' ' . $_POST['deceased_lastname']);
+    $registryno = trim($_POST['registryno']);
+    $copies = intval($_POST['copies']);
+
+    // Deceased info
+    $deceased_firstname = trim($_POST['deceased_firstname']);
+    $deceased_middlename = trim($_POST['deceased_middlename']);
+    $deceased_lastname = trim($_POST['deceased_lastname']);
+    $birthdate = $_POST['birthdate'];
+    $deathdate = $_POST['deathdate'];
+    $age = intval($_POST['age']);
+    $sex = trim($_POST['sex']);
+    $deathplace = trim($_POST['deathplace']);
+    $civilstatus = trim($_POST['civilstatus']);
+    $religion = trim($_POST['religion']);
+    $citizenship = trim($_POST['citizenship']);
+    $residence = trim($_POST['residence']);
+    $occupation = trim($_POST['occupation']);
+
+    // Father's info (optional)
+    $fathersname = isset($_POST['father_firstname']) ? trim($_POST['father_firstname'] . ' ' . $_POST['father_middlename'] . ' ' . $_POST['father_lastname']) : '';
+    // Mother's info (optional)
+    $mothersname = isset($_POST['mother_firstname']) ? trim($_POST['mother_firstname'] . ' ' . $_POST['mother_middlename'] . ' ' . $_POST['mother_lastname']) : '';
+
+    try {
+        // 1. Insert into customer table
+        $stmt = $conn->prepare("INSERT INTO customer (fullname, contactno, address, relationship, purpose, certificate_type, email_address) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING customer_id");
+        $stmt->execute([$fullname, $contactno, $address, $relationship, $purpose, 'death', $email_address]);
+        $customer_id = $stmt->fetch(PDO::FETCH_ASSOC)['customer_id'];
+
+        // 2. Insert into registry table (if registryno is provided)
+        $registry_id = null;
+        if (!empty($registryno)) {
+            $stmt2 = $conn->prepare("INSERT INTO registry (registryno) VALUES (?) RETURNING registry_id");
+            $stmt2->execute([$registryno]);
+            $registry_id = $stmt2->fetch(PDO::FETCH_ASSOC)['registry_id'];
+        }
+
+        // 3. Insert into death table (NO registry_id)
+        $stmt3 = $conn->prepare("INSERT INTO death (customer_id, deceasedname, deathdate, birthdate, age, sex, deathplace, civilstatus, religion, citizenship, residence, occupation, fathersname, mothersname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt3->execute([
+            $customer_id,
+            "{$deceased_firstname} {$deceased_middlename} {$deceased_lastname}",
+            $deathdate,
+            $birthdate,
+            $age,
+            $sex,
+            $deathplace,
+            $civilstatus,
+            $religion,
+            $citizenship,
+            $residence,
+            $occupation,
+            $fathersname,
+            $mothersname
+        ]);
+
+        echo "<div style='position:fixed;top:30px;right:30px;z-index:2000;min-width:300px;' class='alert alert-success shadow'>Death certificate request submitted successfully!</div>";
+        echo "<script>setTimeout(function(){ window.location.href = '../verification.php'; }, 2000);</script>";
+    } catch (PDOException $e) {
+        echo "<div style='position:fixed;top:30px;right:30px;z-index:2000;min-width:300px;' class='alert alert-danger shadow'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,117 +185,137 @@
   </style>
 </head>
 <body>
-
-  <!-- Header -->
-  <header class="d-flex align-items-center">
-    <img src="../../images/Logo 1.png" alt="Logo 1" class="logo-img" />
-    <img src="../../images/Logo 2.png" alt="Logo 2" class="logo-img" />
-  </header>
-
   <!-- Main Content -->
   <main class="container">
     <h1 class="mb-4 text-center text-lg-start">Death Certificate Details</h1>
 
     <!-- First Certificate -->
     <div class="form-box">
-      <form class="death-form" id="deathCertForm">
+      <form class="death-form" id="deathCertForm" method="POST">
         <h3>Certificate #1</h3>
-
+      
         <!-- Certificate Info -->
         <div class="mb-4">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Registry Number (Optional)</label>
-              <input type="text" class="form-control" />
+              <input type="text" class="form-control" name="registryno" />
             </div>
             <div class="col-md-6">
               <label class="form-label required">Number of Copies</label>
-              <select class="form-select" required>
+              <select class="form-select" name="copies" required>
                 <option selected disabled>Choose...</option>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
               </select>
             </div>
           </div>
         </div>
-
+      
         <!-- Deceased Person Info -->
         <div class="mb-4">
           <h3>Deceased Person Information</h3>
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label required">First Name</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="deceased_firstname" required />
             </div>
             <div class="col-md-4">
               <label class="form-label">Middle Name</label>
-              <input type="text" class="form-control" />
+              <input type="text" class="form-control" name="deceased_middlename" />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Last Name</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="deceased_lastname" required />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Date of Birth</label>
-              <input type="date" class="form-control" required />
+              <input type="date" class="form-control" name="birthdate" required />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Date of Death</label>
-              <input type="date" class="form-control" required />
+              <input type="date" class="form-control" name="deathdate" required />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Age</label>
-              <input type="number" min="0" class="form-control" required />
+              <input type="number" min="0" class="form-control" name="age" required />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Sex</label>
-              <select class="form-select" required>
+              <select class="form-select" name="sex" required>
                 <option selected disabled>Choose...</option>
-                <option>Male</option>
-                <option>Female</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
               </select>
             </div>
             <div class="col-md-8">
               <label class="form-label required">Place of Death</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="deathplace" required />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Civil Status</label>
-              <select class="form-select" required>
+              <select class="form-select" name="civilstatus" required>
                 <option selected disabled>Choose...</option>
-                <option>Single</option>
-                <option>Married</option>
-                <option>Widowed</option>
-                <option>Divorced</option>
-                <option>Separated</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Widowed">Widowed</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Separated">Separated</option>
               </select>
             </div>
             <div class="col-md-4">
               <label class="form-label required">Religion</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="religion" required />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Citizenship</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="citizenship" required />
             </div>
             <div class="col-md-6">
               <label class="form-label required">Residence</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="residence" required />
             </div>
             <div class="col-md-6">
               <label class="form-label required">Occupation</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="occupation" required />
             </div>
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="d-flex justify-content-between mt-4">
-          <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
-          <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
+    <!-- Requestor Info -->
+    <div class="mb-4">
+      <h3>Requestor Information</h3>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label required">Contact Number</label>
+          <input type="text" class="form-control" name="contactno" required />
         </div>
-      </form>
+        <div class="col-md-6">
+          <label class="form-label required">Email Address</label>
+          <input type="email" class="form-control" name="email_address" required />
+        </div>
+        <div class="col-md-12">
+          <label class="form-label required">Address</label>
+          <input type="text" class="form-control" name="address" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label required">Relationship to Deceased</label>
+          <input type="text" class="form-control" name="relationship" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label required">Purpose</label>
+          <input type="text" class="form-control" name="purpose" required />
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-between mt-4">
+      <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
+      <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
+    </div>
+    </form>
     </div>
   </main>
 
