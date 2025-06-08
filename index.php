@@ -73,7 +73,7 @@
     </section>
 
     <!-- Info Section -->
-    <section class="bg-white py-5">
+    <section id="about" class="bg-white py-5">
       <div class="container">
         <h2 class="fw-bold mb-4">
           About LGU Iligan – City Civil Registrar's Office
@@ -95,7 +95,7 @@
     </section>
 
     <!-- Contact Section -->
-    <section class="bg-light py-5">
+    <section id="contact" class="bg-light py-5">
       <div class="container d-md-flex align-items-center gap-5">
         <div class="col-md-6 mb-4 mb-md-0">
           <iframe
@@ -206,7 +206,7 @@
   </div>
   <div class="modal-footer">
     <button type="button" id="nextButton" class="btn btn-primary" disabled>
-      Next
+      Proceed
     </button>
         </div>
       </div>
@@ -237,28 +237,5 @@
       window.location.href = "UserDashboard/certificatetype.php";
     });
   </script>
-
-  <div id="g_id_onload"
-     data-client_id="585336830805-9lsmkhp6aom493iou16hunqhlhb2rd9a.apps.googleusercontent.com"
-     data-login_uri="../auth/verify.php"
-     data-auto_prompt="false">
-</div>
-
-<div class="g_id_signin"
-     data-type="standard"
-     data-size="large"
-     data-theme="outline"
-     data-text="sign_in_with"
-     data-shape="rectangular"
-     data-logo_alignment="left">
-</div>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
-<form method="POST" action="send_otp.php">
-  <input type="text" name="phone" placeholder="Enter your phone number" required>
-  <button type="submit">Send OTP</button>
-</form>
-
   </body>
 </html>

@@ -69,8 +69,8 @@ $deathCompleted = 58;
 </head>
 <body>
 
-<?php include 'AdminDashboard/includes/sidebar.html'; ?>
-<?php include 'AdminDashboard/includes/navbar.html'; ?>
+<?php include 'sidebar.php'; ?>
+<?php include 'navbar.php'; ?>
 
 <div class="main">
   <div class="content">

@@ -24,8 +24,17 @@ include "../backend/db.php";
       background-size: cover;
       color: #333;
       margin: 0;
+      min-height: 100vh;
     }
 
+    /* Style the content to be centered */
+    .content {
+      flex: 1;
+      padding: 20px;
+      margin-bottom: 80px;
+    }
+
+    /* Navbar styles (assuming you want to keep them) */
     .logo-img {
       height: 45px;
       width: auto;
@@ -37,36 +46,87 @@ include "../backend/db.php";
       object-fit: contain;
     }
 
-    .btn-option {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 30px;
-      background-color: #fff;
-      border: none;
-      border-radius: 20px;
-      width: 100%;
-      font-size: 2rem;
-      font-weight: 700;
-      justify-content: flex-start;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s ease, background 0.2s ease;
-    }
-
-    .btn-option:hover {
-      background-color: #f2f2f2;
-      transform: scale(1.01);
-    }
-
-    .btn-option i {
-      font-size: 2.5rem;
-      color: #38bdf8;
-    }
-
     .full-height {
       min-height: 100vh;
       padding-top: 100px;
       padding-bottom: 40px;
+    }
+
+    /* New styles for certificate cards */
+    .certificate-card {
+      border-radius: 32px;
+      box-shadow: 0 8px 32px 0 rgba(0,0,0,0.13);
+      transition: transform 0.2s, box-shadow 0.2s;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: stretch;
+      background: #fff;
+    }
+
+    .certificate-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 16px 48px 0 rgba(0,0,0,0.18);
+    }
+
+    .bg-marriage {
+      background: #FFC72C !important;
+    }
+
+    .cert-title {
+      font-size: 2.7rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: #1a2340;
+      letter-spacing: -1px;
+    }
+
+    .bg-marriage .cert-title,
+    .bg-marriage .cert-desc {
+      color: #fff !important;
+    }
+
+    .cert-desc {
+      font-size: 1.15rem;
+      color: #222;
+      font-weight: 400;
+    }
+
+    .get-now-btn {
+      background: #FFC72C;
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 30px;
+      padding: 16px 48px;
+      font-size: 1.2rem;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
+      margin-top: 30px;
+    }
+
+    .get-now-btn:hover,
+    .get-now-btn:focus {
+      background: #e6b200;
+      color: #fff;
+      box-shadow: 0 4px 16px 0 rgba(0,0,0,0.16);
+    }
+
+    .get-now-btn-marriage {
+      background: #fff;
+      color: #FFC72C;
+    }
+
+    .get-now-btn-marriage:hover,
+    .get-now-btn-marriage:focus {
+      background: #ffe082;
+      color: #bfa000;
+    }
+
+    @media (max-width: 991px) {
+      .certificate-card {
+        min-height: 100px;
+      }
     }
   </style>
 </head>
@@ -74,24 +134,64 @@ include "../backend/db.php";
   <!-- Navbar -->
   <?php include "includes/navbar.php"; ?>
 
-  <!-- Main Fullscreen Layout -->
-  <div class="container-fluid full-height d-flex align-items-center">
-    <div class="row w-100">
-      <!-- Left Column -->
-      <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center text-center text-lg-start px-5">
-        <div class="d-flex gap-4 mb-4">
-          <img src="../images/Logo 1.png" alt="Logo 1" class="logo-stack-img" />
-          <img src="../images/Logo 2.png" alt="Logo 2" class="logo-stack-img" />
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <h1 class="fw-bold text-center mb-2" style="font-size:2.7rem;letter-spacing:-1px;">Select Certificate Type</h1>
+    <p class="lead text-center mb-5" style="font-size:1.3rem;">Choose the type of certificate you want to request.</p>
+    <div class="container-fluid">
+      <div class="row justify-content-center g-5">
+        <!-- Live Birth Card -->
+        <div class="col-lg-4 col-md-6 d-flex">
+          <div class="certificate-card bg-white shadow-lg w-100 my-auto">
+            <div class="p-5 d-flex flex-column align-items-center h-100">
+              <h2 class="cert-title mb-3 text-center">Certificate<br>of Live Birth</h2>
+              <p class="cert-desc text-center mb-4">
+                Get <b>Certified True Machine Copy</b> and <b>Certified True Copy</b> of Birth Certificate with just one click!
+              </p>
+              <button id="liveBirthBtn" class="get-now-btn mt-auto">GET NOW</button>
+            </div>
+          </div>
         </div>
-        <h1 class="display-3 fw-bold">Iligan Civil Registry</h1>
-        <h2 class="text-primary fw-semibold fs-1">Online Appointment System</h2>
+        <!-- Marriage Card -->
+        <div class="col-lg-4 col-md-6 d-flex">
+          <div class="certificate-card bg-marriage shadow-lg w-100 my-auto">
+            <div class="p-5 d-flex flex-column align-items-center h-100">
+              <h2 class="cert-title mb-3 text-center text-white">Certificate<br>of Marriage</h2>
+              <p class="cert-desc text-center mb-4 text-white">
+                Get <b>Certified True Machine Copy</b> and <b>Certified True Copy</b> of Marriage Certificate with just one click!
+              </p>
+              <button id="marriageBtn" class="get-now-btn get-now-btn-marriage mt-auto">GET NOW</button>
+            </div>
+          </div>
+        </div>
+        <!-- Death Card -->
+        <div class="col-lg-4 col-md-6 d-flex">
+          <div class="certificate-card bg-white shadow-lg w-100 my-auto">
+            <div class="p-5 d-flex flex-column align-items-center h-100">
+              <h2 class="cert-title mb-3 text-center">Certificate<br>of Death</h2>
+              <p class="cert-desc text-center mb-4">
+                Get <b>Certified True Machine Copy</b> and <b>Certified True Copy</b> of Death Certificate with just one click!
+              </p>
+              <button id="deathBtn" class="get-now-btn mt-auto">GET NOW</button>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Right Column -->
-      <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center gap-4 px-5">
-        <button id="liveBirthBtn" class="btn-option w-100"><i class="bx bx-user"></i> LIVE BIRTH</button>
-        <button id="marriageBtn" class="btn-option w-100"><i class="bx bx-heart"></i> MARRIAGE</button>
-        <button id="deathBtn" class="btn-option w-100"><i class="bx bx-plus-medical"></i> DEATH</button>
+  <!-- Recaptcha Modal (place this BEFORE the confirmationModal) -->
+  <div class="modal fade" id="recaptchaModal" tabindex="-1" aria-labelledby="recaptchaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center p-4">
+        <h2 class="fw-bold mb-4" id="recaptchaLabel">Verify you are human</h2>
+        <div class="d-flex justify-content-center mb-3">
+          <div id="recaptcha-container">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAABecoQ9SovGYRIe8"></div>
+          </div>
+        </div>
+        <div id="recaptcha-error" class="text-danger mb-2" style="display:none;">Please complete the reCAPTCHA.</div>
+        <button class="btn btn-success px-4" onclick="submitRecaptcha()">Continue</button>
       </div>
     </div>
   </div>
@@ -100,10 +200,10 @@ include "../backend/db.php";
   <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content text-center p-4">
-        <h2 class="fw-bold mb-4" id="modalLabel">Are you requesting for yourself?</h2>
+        <h2 class="fw-bold mb-4" id="modalLabel">Are you new or old requester?</h2>
         <div class="d-flex justify-content-center gap-3">
-          <button class="btn btn-primary px-4" onclick="handleYes()">YES</button>
-          <button class="btn btn-secondary px-4" onclick="handleNo()">NO</button>
+          <button class="btn btn-primary px-4" onclick="handleYes()">NEW</button>
+          <button class="btn btn-secondary px-4" onclick="handleNo()">OLD</button>
         </div>
       </div>
     </div>
@@ -111,6 +211,7 @@ include "../backend/db.php";
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
   <!-- Modal Logic -->
   <script>
@@ -118,41 +219,52 @@ include "../backend/db.php";
     const marriageBtn = document.getElementById('marriageBtn');
     const deathBtn = document.getElementById('deathBtn');
     const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    const recaptchaModal = new bootstrap.Modal(document.getElementById('recaptchaModal'));
 
     let activeType = "livebirth"; // default
 
-// Event listeners for each button
-liveBirthBtn.addEventListener('click', () => {
-  activeType = "livebirth";
-  // Update modal title to be more specific
-  document.getElementById('modalLabel').textContent = "Are you requesting a Live Birth certificate for yourself?";
-  confirmationModal.show();
-});
+    // Event listeners for each button
+    liveBirthBtn.addEventListener('click', () => {
+      activeType = "livebirth";
+      // Update modal title to be more specific
+      document.getElementById('modalLabel').textContent = "Are you requesting a Live Birth certificate for yourself?";
+      confirmationModal.show();
+    });
 
-marriageBtn.addEventListener('click', () => {
-  activeType = "marriage";
-  // Update modal title to be more specific about marriage certificate
-  document.getElementById('modalLabel').textContent = "Are you requesting a Marriage certificate for yourself?";
-  confirmationModal.show();
-});
+    marriageBtn.addEventListener('click', () => {
+      activeType = "marriage";
+      // Update modal title to be more specific about marriage certificate
+      document.getElementById('modalLabel').textContent = "Are you requesting a Marriage certificate for yourself?";
+      confirmationModal.show();
+    });
 
-deathBtn.addEventListener('click', () => {
-  activeType = "death";
-  // Update modal title to be more specific
-  document.getElementById('modalLabel').textContent = "Are you the authorized representative for this Death certificate?";
-  confirmationModal.show();
-});
+    deathBtn.addEventListener('click', () => {
+      activeType = "death";
+      // Update modal title to be more specific
+      document.getElementById('modalLabel').textContent = "Are you the authorized representative for this Death certificate?";
+      confirmationModal.show();
+    });
 
-function handleYes() {
-  confirmationModal.hide();
-  window.location.href = "../auth/verify.php?type=" + encodeURIComponent(activeType) + "&self=yes";
-}
+    function handleYes() {
+      confirmationModal.hide();
+      recaptchaModal.show(); // Show reCAPTCHA modal on confirmation
+    }
 
-function handleNo() {
-  confirmationModal.hide();
-  window.location.href = "../auth/verify.php?type=" + encodeURIComponent(activeType) + "&self=no";
-}
+    function handleNo() {
+      confirmationModal.hide();
+      window.location.href = "../auth/verify.php?type=" + encodeURIComponent(activeType) + "&self=no";
+    }
 
-</script>
+    function submitRecaptcha() {
+      // Cloudflare Turnstile sets the response in this hidden input
+      const response = document.querySelector('input[name="cf-turnstile-response"]')?.value;
+      if (!response) {
+        document.getElementById('recaptcha-error').style.display = 'block';
+        return;
+      }
+      document.getElementById('recaptcha-error').style.display = 'none';
+      window.location.href = "../auth/verify.php?type=" + encodeURIComponent(activeType) + "&self=yes";
+    }
+  </script>
 </body>
 </html>

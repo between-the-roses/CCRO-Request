@@ -1,5 +1,6 @@
 <?php
-include "../../backend/db.php";
+// filepath: c:\xampp\htdocs\Thesis-\UserDashboard\Death\deathyes.php
+include "../backend/db.php";
 include "../includes/navbar.php";
 
 if (!$conn) {
@@ -9,32 +10,39 @@ if (!$conn) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect and sanitize form data
-    $fullname = trim($_POST['child_firstname'] . ' ' . $_POST['child_middlename'] . ' ' . $_POST['child_lastname']);
     $contactno = trim($_POST['contactno']);
     $address = trim($_POST['address']);
     $relationship = trim($_POST['relationship']);
     $purpose = trim($_POST['purpose']);
     $email_address = trim($_POST['email_address']);
+    $fullname = trim($_POST['deceased_firstname'] . ' ' . $_POST['deceased_middlename'] . ' ' . $_POST['deceased_lastname']);
     $registryno = trim($_POST['registryno']);
     $copies = intval($_POST['copies']);
 
-    // Child info
-    $child_firstname = trim($_POST['child_firstname']);
-    $child_middlename = trim($_POST['child_middlename']);
-    $child_lastname = trim($_POST['child_lastname']);
+    // Deceased info
+    $deceased_firstname = trim($_POST['deceased_firstname']);
+    $deceased_middlename = trim($_POST['deceased_middlename']);
+    $deceased_lastname = trim($_POST['deceased_lastname']);
     $birthdate = $_POST['birthdate'];
-    $birthplace = trim($_POST['birthplace']);
+    $deathdate = $_POST['deathdate'];
+    $age = intval($_POST['age']);
+    $sex = trim($_POST['sex']);
+    $deathplace = trim($_POST['deathplace']);
+    $civilstatus = trim($_POST['civilstatus']);
+    $religion = trim($_POST['religion']);
+    $citizenship = trim($_POST['citizenship']);
+    $residence = trim($_POST['residence']);
+    $occupation = trim($_POST['occupation']);
 
-    // Father's info
-    $fathersname = trim($_POST['father_firstname'] . ' ' . $_POST['father_middlename'] . ' ' . $_POST['father_lastname']);
-
-    // Mother's info
-    $mothersname = trim($_POST['mother_firstname'] . ' ' . $_POST['mother_middlename'] . ' ' . $_POST['mother_lastname']);
+    // Father's info (optional)
+    $fathersname = isset($_POST['father_firstname']) ? trim($_POST['father_firstname'] . ' ' . $_POST['father_middlename'] . ' ' . $_POST['father_lastname']) : '';
+    // Mother's info (optional)
+    $mothersname = isset($_POST['mother_firstname']) ? trim($_POST['mother_firstname'] . ' ' . $_POST['mother_middlename'] . ' ' . $_POST['mother_lastname']) : '';
 
     try {
         // 1. Insert into customer table
         $stmt = $conn->prepare("INSERT INTO customer (fullname, contactno, address, relationship, purpose, certificate_type, email_address) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING customer_id");
-        $stmt->execute([$fullname, $contactno, $address, $relationship, $purpose, 'livebirth', $email_address]);
+        $stmt->execute([$fullname, $contactno, $address, $relationship, $purpose, 'death', $email_address]);
         $customer_id = $stmt->fetch(PDO::FETCH_ASSOC)['customer_id'];
 
         // 2. Insert into registry table (if registryno is provided)
@@ -45,26 +53,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $registry_id = $stmt2->fetch(PDO::FETCH_ASSOC)['registry_id'];
         }
 
-        // 3. Insert into birth table (use registry_id if available)
-        $stmt3 = $conn->prepare("INSERT INTO birth (customer_id, registry_id, childinfo, birthdate, birthplace, fathersname, mothersname) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        // 3. Insert into death table (NO registry_id)
+        $stmt3 = $conn->prepare("INSERT INTO death (customer_id, deceasedname, deathdate, birthdate, age, sex, deathplace, civilstatus, religion, citizenship, residence, occupation, fathersname, mothersname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt3->execute([
             $customer_id,
-            $registry_id,
-            "{$child_firstname} {$child_middlename} {$child_lastname}",
+            "{$deceased_firstname} {$deceased_middlename} {$deceased_lastname}",
+            $deathdate,
             $birthdate,
-            $birthplace,
+            $age,
+            $sex,
+            $deathplace,
+            $civilstatus,
+            $religion,
+            $citizenship,
+            $residence,
+            $occupation,
             $fathersname,
             $mothersname
         ]);
 
-        // Success message styled at the upper right corner
-        echo "<div style='position:fixed;top:30px;right:30px;z-index:2000;min-width:300px;' class='alert alert-success shadow'>Birth certificate request submitted successfully!</div>";
-        // Redirect to the next step or confirmation page
+        echo "<div style='position:fixed;top:30px;right:30px;z-index:2000;min-width:300px;' class='alert alert-success shadow'>Death certificate request submitted successfully!</div>";
         echo "<script>setTimeout(function(){ window.location.href = '../verification.php'; }, 2000);</script>";
-      } catch (PDOException $e) {
-        // Error message styled at the upper right corner
+    } catch (PDOException $e) {
         echo "<div style='position:fixed;top:30px;right:30px;z-index:2000;min-width:300px;' class='alert alert-danger shadow'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
-          }
+    }
 }
 ?>
 
@@ -73,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Birth Certificate Form</title>
+  <title>Death Certificate Form</title>
 
   <!-- Bootstrap & Boxicons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -173,50 +185,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </style>
 </head>
 <body>
-
   <!-- Main Content -->
   <main class="container">
-    <h1 class="mb-4 text-center text-lg-start">Birth Certificate Details</h1>
+    <h1 class="mb-4 text-center text-lg-start">Death Certificate Details</h1>
 
     <!-- First Certificate -->
     <div class="form-box">
-      <form class="birth-form" id="birthCertForm" method="POST">
-        <h4 class="mt-3 mb-3">Complete Name of the Requesting Party</h4>
-
-        <div class="row g-3">
-          <div class="col-md-4">
-            <label class="form-label">Email Address</label>
-            <input type="email" class="form-control" name="email_address" required />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label required">Contact Number</label>
-            <input type="text" class="form-control" name="contactno" required />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label required">Relationship to the Child</label>
-            <select class="form-select" name="relationship" required>
-              <option value="SELF" selected>SELF</option>
-              <option value="Parent">Parent</option>
-              <option value="Guardian">Guardian</option>
-              <option value="Relative">Relative</option>
-              <option value="Others">Others</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label required">Home Address</label>
-            <input type="text" class="form-control" name="address" required />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label required">Purpose of the Certification</label>
-            <select class="form-select" name="purpose" required>
-              <option disabled selected>Purpose</option>
-              <option>Enrollment</option>
-              <option>Legal</option>
-            </select>
-          </div>
-        </div><br /><hr />
-
+      <form class="death-form" id="deathCertForm" method="POST">
         <h3>Certificate #1</h3>
+      
         <!-- Certificate Info -->
         <div class="mb-4">
           <div class="row g-3">
@@ -228,85 +205,117 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <label class="form-label required">Number of Copies</label>
               <select class="form-select" name="copies" required>
                 <option selected disabled>Choose...</option>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
               </select>
             </div>
           </div>
         </div>
-
-        <!-- Child Info -->
+      
+        <!-- Deceased Person Info -->
         <div class="mb-4">
-          <h3>Person/Child Information</h3>
+          <h3>Deceased Person Information</h3>
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label required">First Name</label>
-              <input type="text" class="form-control" name="child_firstname" required />
+              <input type="text" class="form-control" name="deceased_firstname" required />
             </div>
             <div class="col-md-4">
               <label class="form-label">Middle Name</label>
-              <input type="text" class="form-control" name="child_middlename" />
+              <input type="text" class="form-control" name="deceased_middlename" />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Last Name</label>
-              <input type="text" class="form-control" name="child_lastname" required />
+              <input type="text" class="form-control" name="deceased_lastname" required />
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label required">Date of Birth</label>
               <input type="date" class="form-control" name="birthdate" required />
             </div>
+            <div class="col-md-4">
+              <label class="form-label required">Date of Death</label>
+              <input type="date" class="form-control" name="deathdate" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Age</label>
+              <input type="number" min="0" class="form-control" name="age" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Sex</label>
+              <select class="form-select" name="sex" required>
+                <option selected disabled>Choose...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label required">Place of Death</label>
+              <input type="text" class="form-control" name="deathplace" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Civil Status</label>
+              <select class="form-select" name="civilstatus" required>
+                <option selected disabled>Choose...</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Widowed">Widowed</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Separated">Separated</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Religion</label>
+              <input type="text" class="form-control" name="religion" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Citizenship</label>
+              <input type="text" class="form-control" name="citizenship" required />
+            </div>
             <div class="col-md-6">
-              <label class="form-label required">Place of Birth</label>
-              <input type="text" class="form-control" name="birthplace" required />
+              <label class="form-label required">Residence</label>
+              <input type="text" class="form-control" name="residence" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Occupation</label>
+              <input type="text" class="form-control" name="occupation" required />
             </div>
           </div>
         </div>
 
-        <!-- Father's Info -->
-        <div class="mb-4">
-          <h3>Complete Name of the Father</h3>
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label required">First Name</label>
-              <input type="text" class="form-control" name="father_firstname" required />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Middle Name</label>
-              <input type="text" class="form-control" name="father_middlename" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label required">Last Name</label>
-              <input type="text" class="form-control" name="father_lastname" required />
-            </div>
-          </div>
+    <!-- Requestor Info -->
+    <div class="mb-4">
+      <h3>Requestor Information</h3>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label required">Contact Number</label>
+          <input type="text" class="form-control" name="contactno" required />
         </div>
-
-        <!-- Mother's Info -->
-        <div class="mb-4">
-          <h3>Complete Name of the Mother</h3>
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label required">First Name</label>
-              <input type="text" class="form-control" name="mother_firstname" required />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Middle Name</label>
-              <input type="text" class="form-control" name="mother_middlename" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label required">Last Name</label>
-              <input type="text" class="form-control" name="mother_lastname" required />
-            </div>
-          </div>
+        <div class="col-md-6">
+          <label class="form-label required">Email Address</label>
+          <input type="email" class="form-control" name="email_address" required />
         </div>
-
-        <!-- Action Buttons -->
-        <div class="d-flex justify-content-between mt-4">
-          <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
-          <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
+        <div class="col-md-12">
+          <label class="form-label required">Address</label>
+          <input type="text" class="form-control" name="address" required />
         </div>
-      </form>
+        <div class="col-md-6">
+          <label class="form-label required">Relationship to Deceased</label>
+          <input type="text" class="form-control" name="relationship" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label required">Purpose</label>
+          <input type="text" class="form-control" name="purpose" required />
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-between mt-4">
+      <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
+      <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
+    </div>
+    </form>
     </div>
   </main>
 
@@ -431,7 +440,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Function to validate the form before showing checklist
     function validateAndShowChecklist() {
-      const form = document.getElementById('birthCertForm');
+      const form = document.getElementById('deathCertForm');
       
       // Add 'was-validated' class to show validation feedback
       form.classList.add('was-validated');
@@ -471,7 +480,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         checklistModal.hide();
         
         // Submit the form
-        document.getElementById('birthCertForm').submit();
+        document.getElementById('deathCertForm').submit();
       } else {
         // Show visual indicators for missing requirements
         const warningElement = document.getElementById('checklistWarning');
@@ -504,7 +513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     function handleNo() {
       const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
       modal.hide();
-      addDifferentRequester();
+      window.location.href = 'deathno.html'; // Redirect to the "requesting for another person" page
     }
 
     function cloneFieldsYes() {
@@ -520,8 +529,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       certCountYes++;
 
       const form = newCert.querySelector("form");
-      form.className = "birth-form";
-      form.id = `birthCertForm${certCountYes}`;
+      form.className = "death-form";
+      form.id = `deathCertForm${certCountYes}`;
       form.querySelector("h3").textContent = `Certificate #${certCountYes}`;
 
       // Copy values from first certificate into newCert
@@ -579,127 +588,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         `;
         form.appendChild(btnGroup);
       }
-    }
-
-    function addDifferentRequester() {
-      const container = document.querySelector("main");
-      certCountYes++;
-
-      const formBox = document.createElement("div");
-      formBox.className = "form-box";
-
-      formBox.innerHTML = `
-        <form class="birth-form" id="birthCertForm${certCountYes}">
-          <h3>Certificate #${certCountYes}</h3>
-          <h4>Complete name of the Requesting Party</h4>
-          <div class="row g-3 mb-4">
-            <div class="col-md-4">
-              <label class="form-label required">First Name</label>
-              <input type="text" class="form-control" required />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Middle Name</label>
-              <input type="text" class="form-control" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label required">Last Name</label>
-              <input type="text" class="form-control" required />
-            </div>
-            <div class="col-12">
-              <label class="form-label required">Address</label>
-              <input type="text" class="form-control" required />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label required">Relationship to the Child</label>
-              <select class="form-select" required>
-                <option selected disabled>Choose...</option>
-                <option>Parent</option>
-                <option>Guardian</option>
-                <option>Relative</option>
-                <option>Others</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label required">Purpose of the Certification</label>
-              <select class="form-select" required>
-                <option selected disabled>Choose...</option>
-                <option>School</option>
-                <option>Travel</option>
-                <option>Legal</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label required">Upload Authorization Letter</label>
-              <input type="file" class="form-control" required />
-            </div>
-          </div>
-
-          <!-- Registry Number & Copies -->
-          <hr class="my-4" />
-          <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <label class="form-label">Registry Number (Optional)</label>
-              <input type="text" class="form-control" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label required">Number of Copies</label>
-              <select class="form-select" required>
-                <option selected disabled>Choose...</option>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Person/Child Information -->
-          <div class="mb-4">
-            <h3>Person/Child Information</h3>
-            <div class="row g-3">
-              <div class="col-md-4"><label class="form-label required">First Name</label><input type="text" class="form-control" required /></div>
-              <div class="col-md-4"><label class="form-label">Middle Name</label><input type="text" class="form-control" /></div>
-              <div class="col-md-4"><label class="form-label required">Last Name</label><input type="text" class="form-control" required /></div>
-              <div class="col-md-6"><label class="form-label required">Date of Birth</label><input type="date" class="form-control" required /></div>
-              <div class="col-md-6"><label class="form-label required">Place of Birth</label><input type="text" class="form-control" required /></div>
-            </div>
-          </div>
-
-          <!-- Complete Name of the Father -->
-          <div class="mb-4">
-            <h3>Complete Name of the Father</h3>
-            <div class="row g-3">
-              <div class="col-md-4"><label class="form-label required">First Name</label><input type="text" class="form-control" required /></div>
-              <div class="col-md-4"><label class="form-label">Middle Name</label><input type="text" class="form-control" /></div>
-              <div class="col-md-4"><label class="form-label required">Last Name</label><input type="text" class="form-control" required /></div>
-            </div>
-          </div>
-
-          <!-- Complete Name of the Mother -->
-          <div class="mb-4">
-            <h3>Complete Name of the Mother</h3>
-            <div class="row g-3">
-              <div class="col-md-4"><label class="form-label required">First Name</label><input type="text" class="form-control" required /></div>
-              <div class="col-md-4"><label class="form-label">Middle Name</label><input type="text" class="form-control" /></div>
-              <div class="col-md-4"><label class="form-label required">Last Name</label><input type="text" class="form-control" required /></div>
-            </div>
-          </div>
-
-          <div class="d-flex justify-content-between mt-4">
-            <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
-            <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
-          </div>
-
-          <button type="button" class="btn btn-danger mt-3" onclick="this.closest('.form-box').remove(); certCountYes--; restoreButtonsToLastCert();">Remove Certificate</button>
-        </form>
-      `;
-
-      // Remove buttons in the previous (last) cert
-      const lastCert = document.querySelectorAll(".form-box")[document.querySelectorAll(".form-box").length - 1];
-      const oldBtns = lastCert.querySelector(".d-flex.justify-content-between");
-      if (oldBtns) oldBtns.remove();
-
-      // Add the new certificate
-      container.appendChild(formBox);
     }
   </script>
 </body>

@@ -1,7 +1,7 @@
 <?php
 // filepath: c:\xampp\htdocs\Thesis-\UserDashboard\Marriage\marriageyes.php
-include "../../backend/db.php";
-include "../includes/navbar.php";
+include "../backend/db.php";
+include "includes/navbar.php";
 
 if (!$conn) {
   echo "<div class='alert alert-danger mt-3'>Database connection failed.</div>";

@@ -2,12 +2,12 @@
 header {
     background-color: #fff;
     box-shadow: 0 4px 16px rgba(14, 55, 54, 0.10);
-    padding: 14px 40px;
+    padding: 14px 30px;
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 1000;
-    min-height: 70px;
+    min-height: 40px;
     display: flex;
     align-items: center;
 }
@@ -25,20 +25,15 @@ header {
     transform: scale(1.07);
 }
 
-header .btn-info {
-    background-color: #17c1e8;
-    border: none;
-    font-weight: 600;
-    padding: 8px 22px;
-    border-radius: 8px;
-    transition: background 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 8px rgba(23, 193, 232, 0.08);
+/* Remove underline by default */
+header a {
+    text-decoration: none !important;
 }
-header .btn-info:hover, header .btn-info:focus {
-    background-color: #139ab6;
-    color: #fff;
-    box-shadow: 0 4px 16px rgba(23, 193, 232, 0.15);
-    text-decoration: none;
+
+/* Show underline only when link is active or focused */
+header a:active,
+header a:focus {
+    text-decoration: underline !important;
 }
 
 @media (max-width: 600px) {
@@ -55,6 +50,9 @@ header .btn-info:hover, header .btn-info:focus {
         margin-top: 10px;
         width: 100%;
     }
+    content {
+        margin-bottom: 100px; /* Adjust for fixed header */
+    }
 }
 </style>
 
@@ -64,5 +62,11 @@ header .btn-info:hover, header .btn-info:focus {
         <img src="/Thesis-/images/Logo 2.png" alt="Logo 2" class="logo-img" />
         <img src="/Thesis-/images/Logo 1.png" alt="Logo 1" class="logo-img" />
     </a>
-    <a href="http://localhost/Thesis-/admin.php" class="btn btn-info text-white">Admin Panel</a>
+<!-- Navbar links/buttons with gap -->
+    <div class="d-flex align-items-center" style="gap: 25px;">
+        <a href="http://localhost/Thesis-/index.php" class="btn-info" style="font-size: 1.1rem; color: black;">Home</a>
+        <a href="http://localhost/Thesis-/index.php#about" class="btn-info" style="font-size: 1.1rem; color: black;">About</a>
+        <a href="http://localhost/Thesis-/index.php#contact" class="btn-info" style="font-size: 1.1rem; color: black;">Contact</a>
+        <a href="http://localhost/Thesis-/UserDashboard/verification.php" class="btn btn-info" style="font-size: 1.1rem; padding: 10px 20px; font-weight: 600; color: black; text-decoration: none;">Status Tracker</a>
+    </div>
 </header>
