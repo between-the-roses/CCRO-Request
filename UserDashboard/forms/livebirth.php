@@ -1,61 +1,95 @@
 <?php
-// filepath: c:\xampp\htdocs\Thesis-\UserDashboard\Marriage\marriageyes.php
-include "../backend/db.php";
-include "includes/navbar.php";
+session_start();
+include __DIR__ . "/../../backend/db.php";
+include "../includes/navbar.php";
 
-if (!$conn) {
-  echo "<div class='alert alert-danger mt-3'>Database connection failed.</div>";
-  exit;
+// Check if customer data exists in session
+if (!isset($_SESSION['customer_data'])) {
+    header("Location: http://localhost/CCRO-Request/UserDashboard/customer.php");
+    exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Collect and sanitize form data
-    $contactno = trim($_POST['contactno']);
-    $address = trim($_POST['address']);
-    $relationship = trim($_POST['relationship']);
-    $purpose = trim($_POST['purpose']);
-    $email_address = trim($_POST['email_address']);
-    $fullname = trim($_POST['husband_firstname'] . ' ' . $_POST['husband_middlename'] . ' ' . $_POST['husband_lastname'] . ' & ' . $_POST['wife_firstname'] . ' ' . $_POST['wife_middlename'] . ' ' . $_POST['wife_lastname']);
-    $registryno = trim($_POST['registryno']);
-    $copies = intval($_POST['copies']);
-
-    // Husband info
-    $husbandname = trim($_POST['husband_firstname'] . ' ' . $_POST['husband_middlename'] . ' ' . $_POST['husband_lastname']);
-    // Wife info
-    $wifename = trim($_POST['wife_firstname'] . ' ' . $_POST['wife_middlename'] . ' ' . $_POST['wife_lastname']);
-    // Marriage details
-    $marriagedate = $_POST['marriagedate'];
-    $marriageplace = trim($_POST['marriageplace']);
+    $customer_data = $_SESSION['customer_data'];
+    $certificate_type = 'livebirth'; // Changed from marriage to birth
 
     try {
-        // 1. Insert into customer table
-        $stmt = $conn->prepare("INSERT INTO customer (fullname, contactno, address, relationship, purpose, certificate_type, email_address) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING customer_id");
-        $stmt->execute([$fullname, $contactno, $address, $relationship, $purpose, 'marriage', $email_address]);
-        $customer_id = $stmt->fetch(PDO::FETCH_ASSOC)['customer_id'];
-
-        // 2. Insert into registry table (if registryno is provided)
-        $registry_id = null;
-        if (!empty($registryno)) {
-            $stmt2 = $conn->prepare("INSERT INTO registry (registryno) VALUES (?) RETURNING registry_id");
-            $stmt2->execute([$registryno]);
-            $registry_id = $stmt2->fetch(PDO::FETCH_ASSOC)['registry_id'];
+        // Get copies from form data (first certificate as fallback)
+        $copies = 1;
+        if (isset($_POST['copies'])) {
+            if (is_array($_POST['copies'])) {
+                $copies = intval($_POST['copies'][0]);
+            } else {
+                $copies = intval($_POST['copies']);
+            }
         }
 
-        // 3. Insert into marriage table
-        $stmt3 = $conn->prepare("INSERT INTO marriage (customer_id, registry_id, husbandname, wifename, marriagedate, marriageplace) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt3->execute([
-            $customer_id,
-            $registry_id,
-            $husbandname,
-            $wifename,
-            $marriagedate,
-            $marriageplace
+        // Insert customer first
+        $stmt = $conn->prepare("INSERT INTO customer (fullname, contactno, address, relationship, civilstatus, purpose, copies, certificate_type, email_address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $customer_data['fullname'],
+            $customer_data['contactno'],
+            $customer_data['address'],
+            $customer_data['relationship'],
+            $customer_data['civilstatus'],
+            $customer_data['purpose'],
+            $copies,
+            $certificate_type,
+            $customer_data['email_address']
         ]);
+        $customer_id = $conn->lastInsertId();
 
-        echo "<div style='position:fixed;top:30px;right:30px;z-index:2000;min-width:300px;' class='alert alert-success shadow'>Marriage certificate request submitted successfully!</div>";
-        echo "<script>setTimeout(function(){ window.location.href = '../verification.php'; }, 2000);</script>";
+        // Generate transaction number using customer_id
+        include "../transaction.php";
+        $transaction_number = generateTransactionFromId($customer_id);
+        $_SESSION['transaction_number'] = $transaction_number;
+
+        // Handle multiple birth certificates
+        // If only one certificate, $_POST['child_firstname'] is a string, else it's an array
+        $is_multiple = is_array($_POST['child_firstname'] ?? null);
+
+        if ($is_multiple) {
+            $count = count($_POST['child_firstname']);
+            for ($i = 0; $i < $count; $i++) {
+                $registry_id = trim($_POST['registry_id'][$i] ?? '');
+                $registry_id = ($registry_id === '') ? null : intval($registry_id);
+
+                $childinfo = trim(($_POST['child_firstname'][$i] ?? '') . ' ' . ($_POST['child_middlename'][$i] ?? '') . ' ' . ($_POST['child_lastname'][$i] ?? ''));
+                $birthdate = $_POST['birthdate'][$i] ?? '';
+                $birthplace = trim($_POST['birthplace'][$i] ?? '');
+                $fathersname = trim(($_POST['father_firstname'][$i] ?? '') . ' ' . ($_POST['father_middlename'][$i] ?? '') . ' ' . ($_POST['father_lastname'][$i] ?? ''));
+                $mothersname = trim(($_POST['mother_firstname'][$i] ?? '') . ' ' . ($_POST['mother_middlename'][$i] ?? '') . ' ' . ($_POST['mother_lastname'][$i] ?? ''));
+                $sex = $_POST['sex'][$i] ?? '';
+
+                $stmt = $conn->prepare("INSERT INTO birth (customer_id, registry_id, childinfo, birthdate, birthplace, fathersname, mothersname, sex) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$customer_id, $registry_id, $childinfo, $birthdate, $birthplace, $fathersname, $mothersname, $sex]);
+            }
+        } else {
+            // Single certificate fallback
+            $registry_id = trim($_POST['registry_id'] ?? '');
+            $registry_id = ($registry_id === '') ? null : intval($registry_id);
+
+            $childinfo = trim(($_POST['child_firstname'] ?? '') . ' ' . ($_POST['child_middlename'] ?? '') . ' ' . ($_POST['child_lastname'] ?? ''));
+            $birthdate = $_POST['birthdate'] ?? '';
+            $birthplace = trim($_POST['birthplace'] ?? '');
+            $fathersname = trim(($_POST['father_firstname'] ?? '') . ' ' . ($_POST['father_middlename'] ?? '') . ' ' . ($_POST['father_lastname'] ?? ''));
+            $mothersname = trim(($_POST['mother_firstname'] ?? '') . ' ' . ($_POST['mother_middlename'] ?? '') . ' ' . ($_POST['mother_lastname'] ?? ''));
+            $sex = $_POST['sex'] ?? '';
+
+            $stmt = $conn->prepare("INSERT INTO birth (customer_id, registry_id, childinfo, birthdate, birthplace, fathersname, mothersname, sex) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$customer_id, $registry_id, $childinfo, $birthdate, $birthplace, $fathersname, $mothersname, $sex]);
+        }
+
+        // Clear customer data but keep transaction info
+        unset($_SESSION['customer_data']);
+        $_SESSION['customer_id'] = $customer_id;
+
+        // Redirect to verification page
+        header("Location: ../verification.php");
+        exit;
+
     } catch (PDOException $e) {
-        echo "<div style='position:fixed;top:30px;right:30px;z-index:2000;min-width:300px;' class='alert alert-danger shadow'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
+        echo "<div class='alert alert-danger'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
     }
 }
 ?>
@@ -65,11 +99,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Marriage Certificate Form</title>
+  <title>Birth Certificate Form</title>
 
   <!-- Bootstrap & Boxicons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
 
   <style>
     body {
@@ -165,13 +201,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </style>
 </head>
 <body>
-  <!-- Main Content -->
-  <main class="container">
-    <h1 class="mb-4 text-center text-lg-start">Marriage Certificate Details</h1>
 
-    <!-- First Certificate -->
+  <main class="container">
     <div class="form-box">
-      <form class="marriage-form" id="marriageCertForm" method="POST">
+      <h1 class="mb-4 text-center text-lg-start">Birth Certificate Details</h1>
+      <?php if (isset($_SESSION['transaction_number'])): ?>
+    <div class="alert alert-info mb-3 text-center">
+        <h5 class="mb-1">
+            <i class="fas fa-receipt me-2"></i>
+            Transaction Number: <strong><?php echo htmlspecialchars($_SESSION['transaction_number']); ?></strong>
+        </h5>
+        <small>Please save this transaction number for your records</small>
+    </div>
+<?php endif; ?>
+      
+      <p class="text-center text-lg-start mb-4">
+        Please fill out the form below to request a birth certificate. Ensure all required fields are completed.
+        If you need to add another certificate, click the "Add Another Certificate" button.
+      </p>
+
+      <?php
+      // Show customer summary (from session) before the birth form
+      if (isset($_SESSION['customer_data'])) {
+        $cd = $_SESSION['customer_data'];
+        ?>
+        <div class="mb-4 p-3 rounded bg-white border shadow-sm">
+          <h3 class="mb-3">Requester's Information</h3>
+          <dl class="row mb-0">
+        <dt class="col-sm-4">Full Name</dt>
+        <dd class="col-sm-8"><?php echo htmlspecialchars($cd['fullname'] ?? ''); ?></dd>
+
+        <dt class="col-sm-4">Contact No.</dt>
+        <dd class="col-sm-8"><?php echo htmlspecialchars($cd['contactno'] ?? ''); ?></dd>
+
+        <dt class="col-sm-4">Address</dt>
+        <dd class="col-sm-8"><?php echo htmlspecialchars($cd['address'] ?? ''); ?></dd>
+
+        <dt class="col-sm-4">Relationship</dt>
+        <dd class="col-sm-8"><?php echo htmlspecialchars($cd['relationship'] ?? ''); ?></dd>
+          </dl>
+        </div>
+        <?php
+      }
+      ?>
+      <form class="birth-form" id="birthCertForm" method="POST">
         <h3>Certificate #1</h3>
 
         <!-- Certificate Info -->
@@ -179,11 +252,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Registry Number (Optional)</label>
-              <input type="text" class="form-control" name="registryno" />
+              <input type="text" class="form-control" name="registry_id[]" />
             </div>
             <div class="col-md-6">
               <label class="form-label required">Number of Copies</label>
-              <select class="form-select" name="copies" required>
+              <select class="form-select" name="copies[]" required>
                 <option selected disabled>Choose...</option>
                 <option>1</option>
                 <option>2</option>
@@ -193,63 +266,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <!-- Husband Info -->
+        <!-- Child Info -->
         <div class="mb-4">
-          <h3>Complete Name of the Husband</h3>
+          <h3>Complete Name of the Child</h3>
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label required">First Name</label>
-              <input type="text" class="form-control" name="husband_firstname" required />
+              <input type="text" class="form-control" name="child_firstname[]" required />
             </div>
             <div class="col-md-4">
               <label class="form-label">Middle Name</label>
-              <input type="text" class="form-control" name="husband_middlename" />
+              <input type="text" class="form-control" name="child_middlename[]" />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Last Name</label>
-              <input type="text" class="form-control" name="husband_lastname" required />
+              <input type="text" class="form-control" name="child_lastname[]" required />
             </div>
           </div>
         </div>
 
-        <!-- Wife Info -->
+        <!-- Birth Details -->
         <div class="mb-4">
-          <h3>Complete Name of the Wife</h3>
+          <h3>Birth Details</h3>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label required">Date of Birth</label>
+              <input type="date" class="form-control" name="birthdate[]" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Place of Birth</label>
+              <input type="text" class="form-control" name="birthplace[]" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Sex</label>
+              <select class="form-select" name="sex[]" required>
+                <option selected disabled>Choose...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Father Info -->
+        <div class="mb-4">
+          <h3>Complete Name of the Father</h3>
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label required">First Name</label>
-              <input type="text" class="form-control" name="wife_firstname" required />
+              <input type="text" class="form-control" name="father_firstname[]" required />
             </div>
             <div class="col-md-4">
               <label class="form-label">Middle Name</label>
-              <input type="text" class="form-control" name="wife_middlename" />
+              <input type="text" class="form-control" name="father_middlename[]" />
             </div>
             <div class="col-md-4">
               <label class="form-label required">Last Name</label>
-              <input type="text" class="form-control" name="wife_lastname" required />
+              <input type="text" class="form-control" name="father_lastname[]" required />
             </div>
           </div>
         </div>
 
-        <!-- Marriage Details -->
+        <!-- Mother Info -->
         <div class="mb-4">
-          <h3>Marriage Details</h3>
+          <h3>Complete Maiden Name of the Mother</h3>
           <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label required">Date of Marriage</label>
-              <input type="date" class="form-control" name="marriagedate" required />
+            <div class="col-md-4">
+              <label class="form-label required">First Name</label>
+              <input type="text" class="form-control" name="mother_firstname[]" required />
             </div>
-            <div class="col-md-6">
-              <label class="form-label required">Place of Marriage</label>
-              <input type="text" class="form-control" name="marriageplace" required />
+            <div class="col-md-4">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="mother_middlename[]" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Last Name</label>
+              <input type="text" class="form-control" name="mother_lastname[]" required />
             </div>
           </div>
         </div>
-
+        
         <!-- Action Buttons -->
         <div class="d-flex justify-content-between mt-4">
           <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
-          <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
+          <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist(this)">NEXT</button>
         </div>
       </form>
     </div>
@@ -334,10 +434,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
           
           <div class="d-flex justify-content-center mt-4">
-            <button type="button" class="proceed-btn" onclick="proceedToNextStep()" disabled>PROCEED</button>
+            <button type="button" class="proceed-btn" id="modalProceedBtn" onclick="proceedToNextStep()" disabled>PROCEED</button>
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 
@@ -356,67 +457,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       });
     });
     
+    function validateAndShowChecklist(btn) {
+  const form = btn.closest('form');
+  
+  // Add validation styling
+  form.classList.add('was-validated');
+  
+  if (form.checkValidity()) {
+    const checklistModal = new bootstrap.Modal(document.getElementById('checklistModal'));
+    checklistModal.show();
+
+    // Reset checklist state
+    const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
+    idCheckboxes.forEach(checkbox => checkbox.checked = false);
+
+    // Reset proceed button state
+    const proceedBtn = document.getElementById('modalProceedBtn');
+    if (proceedBtn) {
+      proceedBtn.disabled = true;
+    }
+    
+    const warningElement = document.getElementById('checklistWarning');
+    if (warningElement) {
+      warningElement.style.display = 'block';
+    }
+
+    // Store reference to the current form for submission
+    window.currentBirthForm = form;
+  } else {
+    // Scroll to first invalid field
+    const firstInvalid = form.querySelector(':invalid');
+    if (firstInvalid) {
+      firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstInvalid.focus();
+    }
+  }
+}
+    
     // Function to validate the checklist
     function validateChecklist() {
       const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
       const anyIdSelected = Array.from(idCheckboxes).some(checkbox => checkbox.checked);
       const warningElement = document.getElementById('checklistWarning');
-      const proceedButton = document.querySelector('.proceed-btn');
+      const proceedButton = document.getElementById('modalProceedBtn');
       
       if (anyIdSelected) {
-        // Enable the proceed button and hide warning
         proceedButton.disabled = false;
         warningElement.style.display = 'none';
       } else {
-        // Disable the proceed button and show warning
         proceedButton.disabled = true;
         warningElement.style.display = 'block';
       }
     }
     
-    // Function to validate the form before showing checklist
-    function validateAndShowChecklist() {
-      const form = document.getElementById('marriageCertForm');
-      
-      // Add 'was-validated' class to show validation feedback
-      form.classList.add('was-validated');
-      
-      // Check if form is valid
-      if (form.checkValidity()) {
-        // If valid, show checklist modal
-        const checklistModal = new bootstrap.Modal(document.getElementById('checklistModal'));
-        checklistModal.show();
-        
-        // Reset checklist state
-        const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
-        idCheckboxes.forEach(checkbox => checkbox.checked = false);
-        
-        // Ensure the proceed button is disabled initially
-        document.querySelector('.proceed-btn').disabled = true;
-        document.getElementById('checklistWarning').style.display = 'block';
-        
-      } else {
-        // If not valid, scroll to the first invalid field
-        const firstInvalid = form.querySelector(':invalid');
-        if (firstInvalid) {
-          firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-    }
-    
     // Function to proceed after checklist verification
     function proceedToNextStep() {
-      // Double-check if at least one ID is selected
       const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
       const anyIdSelected = Array.from(idCheckboxes).some(checkbox => checkbox.checked);
-      
+
       if (anyIdSelected) {
-        // Hide the modal
         const checklistModal = bootstrap.Modal.getInstance(document.getElementById('checklistModal'));
         checklistModal.hide();
-        
-        // Submit the form
-        document.getElementById('marriageCertForm').submit();
+
+        // Find and submit the form properly
+        const form = document.getElementById('birthCertForm');
+        if (form) {
+            form.submit();
+        } else if (window.currentBirthForm) {
+            window.currentBirthForm.submit();
+        } else {
+            // Fallback: create a hidden form to submit
+            const hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = '';
+            
+            // Copy all form data from the visible form
+            const visibleForm = document.querySelector('.birth-form');
+            if (visibleForm) {
+                const formData = new FormData(visibleForm);
+                for (let [key, value] of formData.entries()) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    hiddenForm.appendChild(input);
+                }
+            }
+            
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+        }
       } else {
         // Show visual indicators for missing requirements
         const warningElement = document.getElementById('checklistWarning');
@@ -425,13 +555,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         warningElement.style.display = 'block';
         warningElement.classList.add('animate__animated', 'animate__shakeX');
         setTimeout(() => {
-          warningElement.classList.remove('animate__animated', 'animate__shakeX');
+            warningElement.classList.remove('animate__animated', 'animate__shakeX');
         }, 1000);
         
         // Highlight ID section
         const idSection = document.querySelector('#checklistModal .fw-bold.mb-2');
-        idSection.classList.add('text-danger');
-        setTimeout(() => idSection.classList.remove('text-danger'), 3000);
+        if (idSection) {
+            idSection.classList.add('text-danger');
+            setTimeout(() => idSection.classList.remove('text-danger'), 3000);
+        }
       }
     }
 
@@ -465,8 +597,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       certCountYes++;
 
       const form = newCert.querySelector("form");
-      form.className = "marriage-form";
-      form.id = `marriageCertForm${certCountYes}`;
+      form.className = "birth-form";
+      form.id = `birthCertForm${certCountYes}`;
       form.querySelector("h3").textContent = `Certificate #${certCountYes}`;
 
       // Copy values from first certificate into newCert
@@ -488,7 +620,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       btnGroup.className = "d-flex justify-content-between mt-4";
       btnGroup.innerHTML = `
         <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
-        <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
+        <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist(this)">NEXT</button>
       `;
       form.appendChild(btnGroup);
 
@@ -520,14 +652,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         btnGroup.className = "d-flex justify-content-between mt-4";
         btnGroup.innerHTML = `
           <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
-          <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist()">NEXT</button>
+          <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist(this)">NEXT</button>
         `;
         form.appendChild(btnGroup);
       }
     }
 
     function addDifferentRequester() {
-      window.location.href = 'marriageno.html';
+      window.location.href = 'livebirth.php?different_requester=yes';
     }
   </script>
 </body>
