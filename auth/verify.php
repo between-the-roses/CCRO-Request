@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 session_start();
 
 $type = isset($_GET['type']) ? $_GET['type'] : null;
@@ -134,4 +134,4 @@ const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-contain
 // })
 
 }
-</script>
+</script> -->

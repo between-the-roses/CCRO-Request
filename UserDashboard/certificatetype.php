@@ -163,35 +163,54 @@ include "../backend/db.php";
     const marriageBtn = document.getElementById('marriageBtn');
     const deathBtn = document.getElementById('deathBtn');
     const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-    const recaptchaModal = new bootstrap.Modal(document.getElementById('recaptchaModal'));
-    let activeType = "livebirth"; // default
+    
+    // Global variable to store active certificate type
+    window.activeType = "marriage"; // default
 
     liveBirthBtn.addEventListener('click', () => {
-      activeType = "livebirth";
-      document.getElementById('modalLabel').textContent = "Are you a new or returning requestor for a Live Birth certificate?";
-      confirmationModal.show();
+        window.activeType = "livebirth";
+        console.log('🎯 Selected LIVEBIRTH certificate');
+        document.getElementById('modalLabel').textContent = "Are you a new or returning requestor for a Live Birth certificate?";
+        confirmationModal.show();
     });
+    
     marriageBtn.addEventListener('click', () => {
-      activeType = "marriage";
-      document.getElementById('modalLabel').textContent = "Are you a new or returning requestor for a Marriage certificate?";
-      confirmationModal.show();
+        window.activeType = "marriage";
+        console.log('🎯 Selected MARRIAGE certificate');
+        document.getElementById('modalLabel').textContent = "Are you a new or returning requestor for a Marriage certificate?";
+        confirmationModal.show();
     });
+    
     deathBtn.addEventListener('click', () => {
-      activeType = "death";
-      document.getElementById('modalLabel').textContent = "Are you a new or returning requestor for a Death certificate?";
-      confirmationModal.show();
+        window.activeType = "death";
+        console.log('🎯 Selected DEATH certificate');
+        document.getElementById('modalLabel').textContent = "Are you a new or returning requestor for a Death certificate?";
+        confirmationModal.show();
     });
 
     function handleYes() {
-      confirmationModal.hide();
-      const modal = new bootstrap.Modal(document.getElementById('recaptchaModal'));
-      modal.show();
+        console.log('🚀 NEW user selected for certificate type:', window.activeType);
+        confirmationModal.hide();
+        
+        // Wait a moment for modal to hide, then show verification
+        setTimeout(() => {
+            // Make sure the certificate type is set globally
+            if (typeof setCertificateType === 'function') {
+                setCertificateType(window.activeType);
+            }
+            
+            const recaptchaModal = new bootstrap.Modal(document.getElementById('recaptchaModal'));
+            recaptchaModal.show();
+        }, 300);
     }
+    
     function handleNo() {
-      confirmationModal.hide();
-      window.location.href = "./auth/verify.php?type=" + encodeURIComponent(activeType) + "&self=returning";
+        console.log('🔄 RETURNING user selected for certificate type:', window.activeType);
+        confirmationModal.hide();
+        
+        // For returning users, redirect to the returning profile page
+        window.location.href = `./profile/returning.php?type=${encodeURIComponent(window.activeType)}`;
     }
-    // recaptcha handler stays in validation.php
   </script>
 </body>
 </html>
