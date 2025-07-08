@@ -359,35 +359,99 @@
         }
 
         /* Feature Cards */
-        .feature-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 5px 25px rgba(30, 64, 175, 0.1);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(30, 64, 175, 0.1);
-        }
+       .feature-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 5px 25px rgba(30, 64, 175, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(30, 64, 175, 0.1);
+    height: 100%;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-        .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(30, 64, 175, 0.2);
-        }
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(30, 64, 175, 0.2);
+}
 
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 2rem;
-            color: white;
-            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.3);
-        }
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 1.8rem;
+    color: white;
+    box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
+    flex-shrink: 0;
+}
 
+.feature-card h4 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: var(--text-dark);
+    line-height: 1.3;
+}
+
+.feature-card p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-light);
+    margin: 0;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.row .col-md-4 {
+    display: flex;
+    margin-bottom: 2rem;
+}
+
+.row .col-md-4 .feature-card {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .feature-card {
+        padding: 1.5rem;
+        min-height: 250px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-card h4 {
+        font-size: 1.2rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .feature-card {
+        min-height: 220px;
+        padding: 1.2rem;
+    }
+}
         /* Section Styling */
         .section-title {
             font-family: 'Playfair Display', serif;
@@ -440,38 +504,53 @@
             transform: translateX(5px);
         }
 
-        .contact-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            font-size: 1.2rem;
-            color: white;
-        }
+   .contact-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+        
 
         /* Map Styling */
         .map-container {
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 15px 40px rgba(30, 64, 175, 0.1);
-            position: relative;
-        }
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(30, 64, 175, 0.1);
+    position: relative;
+    height: 100%;
+    min-height: 400px;
+}
 
-        .map-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, rgba(30, 64, 175, 0.1), transparent);
-            z-index: 1;
-            pointer-events: none;
-        }
+.map-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(30, 64, 175, 0.1), transparent);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.contact-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 15px 40px rgba(30, 64, 175, 0.1);
+    border: 1px solid rgba(30, 64, 175, 0.1);
+    height: 100%;
+    min-height: 400px;
+}
 
         /* Modal Improvements */
         .modal-custom {
@@ -643,39 +722,40 @@
 
     <!-- Features Section -->
     <section class="py-5" style="background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);">
-        <div class="container">
-            <h2 class="section-title">Why Choose Our Service?</h2>
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="bx bx-time-five"></i>
-                        </div>
-                        <h4>Fast & Efficient</h4>
-                        <p>Quick processing times and streamlined procedures for all your civil registry needs.</p>
+    <div class="container">
+        <h2 class="section-title">Why Choose Our Service?</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4 d-flex">
+                <div class="feature-card w-100">
+                    <div class="feature-icon">
+                        <i class="bx bx-time-five"></i>
                     </div>
+                    <h4>Fast & Efficient</h4>
+                    <p>Quick processing times and streamlined procedures for all your civil registry needs.</p>
                 </div>
-                <div class="col-md-4 mb-4">
-  <div class="feature-card">
-    <div class="feature-icon">
-      <i class="bx bx-shield-check"></i>
-    </div>
-    <h4>Secure & Reliable</h4>
-    <p>Your personal information is protected with state-of-the-art security measures.</p>
-  </div>
-</div>
-                <div class="col-md-4 mb-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="bx bx-mobile-alt"></i>
-                        </div>
-                        <h4>24/7 Accessibility</h4>
-                        <p>Access our services anytime, anywhere with our mobile-friendly platform.</p>
+            </div>
+            <div class="col-md-4 mb-4 d-flex">
+                <div class="feature-card w-100">
+                    <div class="feature-icon">
+                        <i class="bx bx-lock-alt"></i>
                     </div>
+                    <h4>Secure & Reliable</h4>
+                    <p>Your personal information is protected with state-of-the-art security measures.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 d-flex">
+                <div class="feature-card w-100">
+                    <div class="feature-icon">
+                        <i class="bx bx-mobile-alt"></i>
+                    </div>
+                    <h4>24/7 Accessibility</h4>
+                    <p>Access our services anytime, anywhere with our mobile-friendly platform.</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
 
     <!-- About Section -->
     <section id="about" class="py-5" style="background: white;">
@@ -730,69 +810,72 @@
 
     <!-- Contact Section -->
     <section id="contact" class="contact-section py-5">
-        <div class="container">
-            <h2 class="section-title">Get in Touch</h2>
-            <div class="row">
-                <div class="col-lg-6 mb-4">
-                    <div class="map-container">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15663.801351747147!2d124.245431!3d8.229861!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32557487e9b77cbd%3A0x54f7c5fdba614f27!2sIligan%20City%20Hall!5e0!3m2!1sen!2sph!4v1712730415455!5m2!1sen!2sph"
-                            width="100%"
-                            height="400"
-                            style="border: 0;"
-                            allowfullscreen=""
-                            loading="lazy">
-                        </iframe>
+    <div class="container">
+        <h2 class="section-title">Get in Touch</h2>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="contact-card">
+                    <h3 style="color: var(--primary-blue); margin-bottom: 2rem;">Contact Information</h3>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bx bxs-map"></i>
+                        </div>
+                        <div>
+                            <h5>Address</h5>
+                            <p class="mb-0">Iligan City Hall, Quezon Avenue Extension, Palao, Buhanginan Hills, Iligan City, 9200, Lanao del Norte</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="contact-card">
-                        <h3 style="color: var(--primary-blue); margin-bottom: 2rem;">Contact Information</h3>
-                        
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bx bxs-map"></i>
-                            </div>
-                            <div>
-                                <h5>Address</h5>
-                                <p class="mb-0">Iligan City Hall, Quezon Avenue Extension, Palao, Buhanginan Hills, Iligan City, 9200, Lanao del Norte</p>
-                            </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bx bxs-phone"></i>
                         </div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bx bxs-phone"></i>
-                            </div>
-                            <div>
-                                <h5>Phone</h5>
-                                <p class="mb-0">0927 074 6624</p>
-                            </div>
+                        <div>
+                            <h5>Phone</h5>
+                            <p class="mb-0">0927 074 6624</p>
                         </div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bx bxs-envelope"></i>
-                            </div>
-                            <div>
-                                <h5>Email</h5>
-                                <p class="mb-0">civilregistrar.iligan@gmail.com</p>
-                            </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bx bxs-envelope"></i>
                         </div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bx bxs-time"></i>
-                            </div>
-                            <div>
-                                <h5>Office Hours</h5>
-                                <p class=" mb-0">Monday - Friday: 8:00 AM - 5:00 PM</p>
-                            </div>
+                        <div>
+                            <h5>Email</h5>
+                            <p class="mb-0">civilregistrar.iligan@gmail.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bx bxs-time"></i>
+                        </div>
+                        <div>
+                            <h5>Office Hours</h5>
+                            <p class="mb-0">Monday - Friday: 8:00 AM - 5:00 PM</p>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="col-lg-6">
+                <div class="map-container">
+                    <iframe
+                        src="https://maps.google.com/maps?q=8.226083,124.251917&hl=en&z=16&amp;output=embed"
+                        width="100%"
+                        height="100%"
+                        style="border: 0; min-height: 400px;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
+</section>
+                
 <!-- Important Reminders Modal (Replaced Get Started Modal) -->
 <div
   class="modal fade"
