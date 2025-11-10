@@ -325,39 +325,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       font-size: 0.875em;
       color: #dc3545;
     }
-    
-    /* Styles for checklist modal */
-    .checklist-modal .modal-content {
-      border-radius: 20px;
-      background-color: #f0f9ff;
-    }
-    .checklist-modal .modal-header {
-      background-color: #38bdf8;
-      color: white;
-      border-radius: 20px 20px 0 0;
-    }
-    .checklist-modal .modal-body {
-      padding: 30px;
-    }
-    .checklist-modal .proceed-btn {
-      background-color: #38bdf8;
-      color: white;
-      padding: 10px 30px;
-      border-radius: 50px;
-      border: none;
-      font-weight: 600;
-    }
-    .checklist-item {
-      margin-bottom: 10px;
-    }
-    .checklist-header {
-      background-color: #e6f7ff;
-      padding: 10px 15px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      text-align: center;
-      font-weight: 500;
-    }
   </style>
 </head>
 <body>
@@ -632,75 +599,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 
-  <!-- Checklist Modal -->
-  <div class="modal fade checklist-modal" id="checklistModal" tabindex="-1" aria-labelledby="checklistModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="checklistModalLabel">Document Requirements</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="checklist-header">
-            Please check the following requirements. You cannot proceed if any requirement is incomplete.
-          </div>
-          <div class="alert alert-warning" id="checklistWarning" style="display: none;">
-            <strong>Warning:</strong> You must select at least one ID to proceed.
-          </div>
-          <div class="mb-3">
-            <div class="fw-bold mb-2">✓ The ID's that are available to you</div>
-            
-            <div class="row">
-              <div class="col-md-6">
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="nationalId">
-                  <label class="form-check-label" for="nationalId">National ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="driversLicense">
-                  <label class="form-check-label" for="driversLicense">Driver's License</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="umidId">
-                  <label class="form-check-label" for="umidId">UMID ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="tinId">
-                  <label class="form-check-label" for="tinId">TIN ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="votersCert">
-                  <label class="form-check-label" for="votersCert">Voter's Certificate</label>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="philhealth">
-                  <label class="form-check-label" for="philhealth">PhilHealth</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="prcId">
-                  <label class="form-check-label" for="prcId">PRC ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="owwaId">
-                  <label class="form-check-label" for="owwaId">OWWA ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="seniorId">
-                  <label class="form-check-label" for="seniorId">Senior Citizen ID</label>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="d-flex justify-content-center mt-4">
-            <button type="button" class="proceed-btn" id="modalProceedBtn" onclick="proceedToNextStep()" disabled>PROCEED</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Include Checklist Modal -->
+  <?php include "checklist_modal.php"; ?>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -708,17 +608,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- JavaScript Logic -->
   <script>
     let certCountYes = 1;
-    
-    // Add event listeners to all checkboxes in checklist
-    document.addEventListener('DOMContentLoaded', function() {
-      const allCheckboxes = document.querySelectorAll('#checklistModal input[type="checkbox"]');
-      allCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', validateChecklist);
-      });
-
-      // Add age calculation listeners to initial form
-      addAgeCalculationListeners(document);
-    });
 
     // Function to calculate age at death
     function calculateAge(birthDate, deathDate) {
@@ -814,6 +703,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         errorDiv.remove();
       }
     }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      addAgeCalculationListeners(document);
+    });
     
     function validateAndShowChecklist(btn) {
       const form = btn.closest('form');
@@ -875,52 +769,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // Store reference to the current form for submission
       window.currentDeathForm = form;
     }
-    
-    // Function to validate the checklist
-    function validateChecklist() {
-      const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
-      const anyIdSelected = Array.from(idCheckboxes).some(checkbox => checkbox.checked);
-      const warningElement = document.getElementById('checklistWarning');
-      const proceedButton = document.getElementById('modalProceedBtn');
-      
-      if (anyIdSelected) {
-        proceedButton.disabled = false;
-        warningElement.style.display = 'none';
-      } else {
-        proceedButton.disabled = true;
-        warningElement.style.display = 'block';
-      }
-    }
-    
-    // Function to proceed after checklist verification
-    function proceedToNextStep() {
-      const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
-      const anyIdSelected = Array.from(idCheckboxes).some(checkbox => checkbox.checked);
-
-      if (anyIdSelected) {
-        const checklistModal = bootstrap.Modal.getInstance(document.getElementById('checklistModal'));
-        checklistModal.hide();
-
-        // Find and submit the form properly
-        const form = document.getElementById('deathCertForm');
-        if (form) {
-            console.log('Submitting death certificate form...');
-            form.submit();
-        } else {
-            console.error('Form not found!');
-        }
-      } else {
-        // Show visual indicators for missing requirements
-        const warningElement = document.getElementById('checklistWarning');
-        
-        // Show warning with animation
-        warningElement.style.display = 'block';
-        warningElement.classList.add('animate__animated', 'animate__shakeX');
-        setTimeout(() => {
-            warningElement.classList.remove('animate__animated', 'animate__shakeX');
-        }, 1000);
-      }
-    }
 
     function showConfirmation() {
       const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
@@ -942,13 +790,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     function cloneFieldsYes() {
       const container = document.querySelector("main");
       const allCerts = document.querySelectorAll(".form-box");
-      const firstCert = allCerts[0]; // Always clone data from Cert #1
+      const firstCert = allCerts[0];
       const lastCert = allCerts[allCerts.length - 1];
 
       const oldBtns = lastCert.querySelector(".d-flex.justify-content-between");
       if (oldBtns) oldBtns.remove();
 
-      const newCert = lastCert.cloneNode(true); // Clone layout from lastCert
+      const newCert = lastCert.cloneNode(true);
       certCountYes++;
 
       const form = newCert.querySelector("form");
@@ -956,7 +804,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       form.id = `deathCertForm${certCountYes}`;
       form.querySelector("h3").textContent = `Certificate #${certCountYes}`;
 
-      // Copy values from first certificate into newCert
       const firstInputs = firstCert.querySelectorAll("input, select");
       const newInputs = newCert.querySelectorAll("input, select");
 
@@ -966,11 +813,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
       });
 
-      // Remove any existing remove button to avoid duplicates
       const oldRemoveBtn = newCert.querySelector(".btn-danger");
       if (oldRemoveBtn) oldRemoveBtn.remove();
 
-      // Clear any validation errors from the cloned form
+      // Clear validation errors
       const invalidInputs = newCert.querySelectorAll('.is-invalid');
       invalidInputs.forEach(input => input.classList.remove('is-invalid'));
       const errorMessages = newCert.querySelectorAll('.invalid-feedback');
@@ -979,7 +825,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // Add age calculation listeners to the new form
       addAgeCalculationListeners(newCert);
 
-      // Add action buttons
       const btnGroup = document.createElement("div");
       btnGroup.className = "d-flex justify-content-between mt-4";
       btnGroup.innerHTML = `
@@ -988,7 +833,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       `;
       form.appendChild(btnGroup);
 
-      // Add a new clean remove button
       const removeBtn = document.createElement("button");
       removeBtn.className = "btn btn-danger mt-3";
       removeBtn.type = "button";
@@ -1010,7 +854,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const lastCert = allCerts[allCerts.length - 1];
       const form = lastCert.querySelector("form");
 
-      // Only restore if not already present
       if (!form.querySelector(".btn-add")) {
         const btnGroup = document.createElement("div");
         btnGroup.className = "d-flex justify-content-between mt-4";

@@ -192,6 +192,11 @@ include "../backend/db.php";
         console.log('🚀 NEW user selected for certificate type:', window.activeType);
         confirmationModal.hide();
         
+        // Mark as new user
+        if (typeof setNewUser === 'function') {
+            setNewUser();
+        }
+        
         // Wait a moment for modal to hide, then show verification
         setTimeout(() => {
             // Make sure the certificate type is set globally
@@ -204,12 +209,31 @@ include "../backend/db.php";
         }, 300);
     }
     
+    // Handles the action when a returning user selects a certificate type; shows verification then redirects.
     function handleNo() {
         console.log('🔄 RETURNING user selected for certificate type:', window.activeType);
         confirmationModal.hide();
         
-        // For returning users, redirect to the returning profile page
-        window.location.href = `./profile/returning.php?type=${encodeURIComponent(window.activeType)}`;
+        // Mark as returning user
+        if (typeof setReturningUser === 'function') {
+            setReturningUser();
+        }
+        
+        // For returning users, also require verification
+        if (typeof window.activeType === 'string' && window.activeType.trim() !== '') {
+            // Wait a moment for modal to hide, then show verification
+            setTimeout(() => {
+                // Make sure the certificate type is set globally
+                if (typeof 555555 === 'function') {
+                    setCertificateType(window.activeType);
+                }
+                
+                const recaptchaModal = new bootstrap.Modal(document.getElementById('recaptchaModal'));
+                recaptchaModal.show();
+            }, 300);
+        } else {
+            alert('Invalid certificate type selected. Please try again.');
+        }
     }
   </script>
 </body>

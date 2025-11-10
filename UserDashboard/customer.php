@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 include __DIR__ . "/../backend/db.php";
-include "includes/navbar.php";
 
 if (!$conn) {
   echo "<div class='alert alert-danger mt-3'>Database connection failed.</div>";
@@ -111,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
             }
-            if (move_uploaded_file($_FILES['authorization']['tmp_name'], $upload_dir . $authorization)) {
+            if (move_uploaded_file($_FILES['authorization']['tmp_name'], "{$upload_dir}{$authorization}")) {
                 $_SESSION['customer_data']['authorization'] = $authorization;
             } else {
                 $errors[] = "Failed to upload authorization letter.";
@@ -120,24 +119,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // If still no errors after file upload, redirect
         if (empty($errors)) {
-            error_log("Form validation successful, redirecting to: forms/{$certificate_type}.php");
+            // Clean any output buffer before redirect
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
             
+            // Redirect to appropriate form based on certificate type
             switch($certificate_type) {
                 case 'livebirth':
                     header("Location: forms/livebirth.php");
-                    exit;
+                    exit();
                     
                 case 'death':
                     header("Location: forms/death.php");
-                    exit;
+                    exit();
                     
                 case 'marriage':
                     header("Location: forms/marriage.php");
-                    exit;
+                    exit();
                     
                 default:
                     header("Location: certificatetype.php");
-                    exit;
+                    exit();
             }
         }
     }
@@ -245,6 +248,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+<!-- Navbar -->
+<?php include "includes/navbar.php"; ?>
+
+<!-- Main Content -->
 <main class="container">
     <div class="form-box">
         <!-- Back to Certificate Selection -->

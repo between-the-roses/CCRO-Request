@@ -5,51 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iligan City Document Pickup</title>
     <style>
-        body, html {
-            height: 100%;
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
+            padding: 0;
+            box-sizing: border-box;
         }
         
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 30%, #3b82f6 60%, #60a5fa 80%, #f97316 100%);
+            z-index: -2;
+        }
+        
+        .background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(30, 58, 138, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        /* Modern header styling */
         header {
-            background-color: white;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            padding: 20px 30px;
-            box-shadow: 0 8px 11px rgba(14, 55, 54, 0.15);
+            padding: 15px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             display: flex;
             align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .logo-img {
-            height: 45px;
-            margin-right: 15px;
+            height: 40px;
+            margin-right: 12px;
+            filter: brightness(1.2) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
         }
 
         .container {
             display: flex;
-            height: 100vh;
-            padding-top: 85px; /* Leave space for the fixed header */
+            min-height: 100vh;
+            padding-top: 85px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .image-section {
             flex: 1;
-            background-color: #5ec2eb;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
+        }
+
+        .image-section img {
+            max-width: 100%;
+            height: auto;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.1));
+        }
+
+        .pickup-above {
+            max-width: 300px !important;
+            margin-bottom: 20px;
+        }
+
+        .pickup-low {
+            max-width: 350px !important;
+            margin-top: 10px;
         }
 
         .payment-section {
             flex: 1;
-            background-color: white;
             padding: 40px;
             display: flex;
             flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            margin: 20px;
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 500px;
         }
 
         .payment-header {
@@ -59,87 +120,171 @@
         }
 
         .payment-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-left: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            margin-left: 12px;
+            color: #000000;
         }
 
         .payment-options {
             margin-bottom: 20px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .payment-options label {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-options input[type="radio"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            accent-color: #1e3a8a;
         }
 
         .payment-divider {
-            height: 1px;
-            background-color: #e0e0e0;
+            height: 2px;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6, transparent);
             margin: 20px 0;
+            border-radius: 2px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #000000;
+            font-weight: 600;
+            font-size: 16px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 16px;
+            border: 2px solid rgba(30, 58, 138, 0.2);
+            border-radius: 12px;
             box-sizing: border-box;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus {
+            border-color: #1e3a8a;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
         }
 
         .qr-section {
             display: none;
             text-align: center;
             margin: 20px 0;
-        }
-
-        .qr-code {
-            max-width: 200px;
-            margin: 0 auto;
+            padding: 24px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 16px;
+            border: 2px solid rgba(59, 130, 246, 0.2);
         }
 
         .qr-instructions {
-            margin-top: 10px;
+            margin-bottom: 16px;
             text-align: center;
-            font-size: 14px;
+            font-size: 16px;
+            color: #000000;
+            line-height: 1.6;
         }
 
         .phone-number {
-            color: #0066cc;
+            color: #1e3a8a;
             font-weight: bold;
+            font-size: 18px;
         }
 
         .submit-btn {
-            background-color: #4285f4;
+            background: linear-gradient(135deg, #1e3a8a 0%, #f97316 100%);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
+            padding: 18px 32px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
             cursor: pointer;
             margin-top: auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(30, 58, 138, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
         }
 
         .submit-btn:hover {
-            background-color: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(30, 58, 138, 0.5);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0px);
         }
 
         .upload-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background-color: white;
-            border: 1px solid #ddd;
-            padding: 8px 15px;
-            border-radius: 4px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
             cursor: pointer;
+            margin-top: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            position: relative;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-status {
             margin-top: 10px;
+            font-size: 14px;
+            color: #059669;
+            font-weight: 600;
         }
 
         /* Modal styles */
@@ -149,34 +294,126 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 1100;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
             text-align: center;
-            max-width: 400px;
+            max-width: 480px;
             width: 90%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h2 {
+            color: #000000;
+            margin-bottom: 16px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .modal p {
+            color: #000000;
+            margin-bottom: 32px;
+            font-size: 16px;
+            line-height: 1.6;
         }
 
         .button {
-            padding: 10px 20px;
-            margin: 10px auto;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            background-color: #4285f4;
+            background: linear-gradient(135deg, #1e3a8a 0%, #f97316 100%);
             color: white;
-            display: block;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(30, 58, 138, 0.4);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(30, 58, 138, 0.5);
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .float-element {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(59, 130, 246, 0.15);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .float-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .float-element:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+        
+        .float-element:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 0.8;
+            }
         }
 
         /* Responsive adjustments */
@@ -186,19 +423,48 @@
             }
             
             .image-section {
-                height: 40vh;
+                min-height: 30vh;
+                padding: 20px;
             }
             
             .payment-section {
-                height: 60vh;
+                margin: 10px;
+                padding: 24px;
+                max-width: none;
+            }
+
+            .payment-options {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .payment-title {
+                font-size: 24px;
+            }
+
+            .pickup-above {
+                max-width: 250px !important;
+            }
+
+            .pickup-low {
+                max-width: 280px !important;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Floating background elements -->
+    <div class="floating-elements">
+        <div class="float-element"></div>
+        <div class="float-element"></div>
+        <div class="float-element"></div>
+    </div>
+
+    <div class="background"></div>
+    
     <!-- Header -->
     <header>
-        <img src="../..//Logo 1.png" alt="Logo 1" class="logo-img" />
+        <img src="../../images/Logo 1.png" alt="Logo 1" class="logo-img" />
         <img src="../../images/Logo 2.png" alt="Logo 2" class="logo-img" />
     </header>
     
@@ -206,56 +472,62 @@
     <div class="container">
         <!-- Left side - Images -->
         <div class="image-section">
-            <img src="../../images/pickup above.png" alt="Payment Options" style="max-width: 30%; margin-bottom: 20px;">
-            <div style="color: #333; font-size: 28px; font-weight: bold; margin: 10px 0;"></div>
-            <img src="../../images/pickup low.png" alt="Pickup Illustration" style="max-width: 60%; margin-top: 10px;">
+            <img src="../../images/pickup above.png" alt="Payment Options" class="pickup-above">
+            <div style="color: white; font-size: 28px; font-weight: bold; margin: 10px 0; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);"></div>
+            <img src="../../images/pickup low.png" alt="Pickup Illustration" class="pickup-low">
         </div>
         
         <!-- Right side - Payment Form -->
         <div class="payment-section">
             <div class="payment-header">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 4H4C2.89 4 2.01 4.89 2.01 6L2 18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="black"/>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 4H4C2.89 4 2.01 4.89 2.01 6L2 18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="url(#gradient1)"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1e3a8a"/>
+                            <stop offset="100%" style="stop-color:#f97316"/>
+                        </linearGradient>
+                    </defs>
                 </svg>
                 <div class="payment-title">Payment</div>
             </div>
             
             <div class="payment-options">
-                <label style="margin-right: 20px;">
+                <label>
                     <input type="radio" name="payment" value="cash" checked onchange="togglePaymentMethod()"> Cash
                 </label>
                 <label>
-                    <input type="radio" name="payment" value="gcash" onchange="togglePaymentMethod()"> Gcash
+                    <input type="radio" name="payment" value="gcash" onchange="togglePaymentMethod()"> GCash
                 </label>
             </div>
             
             <div class="payment-divider"></div>
             
-            <!-- QR Code Section (initially hidden) -->
+            <!-- Payment Section (without QR image) -->
             <div class="qr-section" id="qrSection">
-                <img src="../../images/QRcode.png" alt="Gcash QR Code" class="qr-code">
                 <p class="qr-instructions">
-                    Pay by Scanning this QR CODE<br>or<br>
                     Pay through this number: <span class="phone-number">09454874824</span>
                 </p>
-                <button class="upload-btn">
+                <button class="upload-btn" onclick="triggerFileUpload()">
+                    <input type="file" class="file-input" id="receiptUpload" accept="image/*,.pdf" onchange="handleFileUpload(this)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
                         <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" fill="currentColor"/>
                     </svg>
                     Upload Receipt
                 </button>
+                <div id="fileStatus" class="file-status"></div>
             </div>
             
             <!-- Form Fields -->
             <form id="pickupForm">
                 <div class="form-group">
                     <label for="email">Email Address:</label>
-                    <input type="email" id="email" name="email" placeholder="Email Address" required>
+                    <input type="email" id="email" name="email" placeholder="Enter your email address" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="mobile">Mobile Number:</label>
-                    <input type="tel" id="mobile" name="mobile" placeholder="Mobile Number" required>
+                    <input type="tel" id="mobile" name="mobile" placeholder="Enter your mobile number" required>
                 </div>
                 
                 <button type="button" class="submit-btn" onclick="submitForm()">SUBMIT</button>
@@ -283,6 +555,25 @@
                 qrSection.style.display = 'none';
             }
         }
+
+        function triggerFileUpload() {
+            document.getElementById('receiptUpload').click();
+        }
+
+        function handleFileUpload(input) {
+            const fileStatus = document.getElementById('fileStatus');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileName = file.name;
+                const fileSize = (file.size / 1024 / 1024).toFixed(2); // Convert to MB
+                
+                fileStatus.innerHTML = `✓ File uploaded: ${fileName} (${fileSize} MB)`;
+                fileStatus.style.color = '#059669';
+            } else {
+                fileStatus.innerHTML = '';
+            }
+        }
         
         function submitForm() {
             const email = document.getElementById('email').value;
@@ -292,6 +583,15 @@
             if (!email || !mobile) {
                 alert("Please fill in all required fields.");
                 return;
+            }
+
+            // Check if GCash is selected but no receipt uploaded
+            if (paymentMethod === 'gcash') {
+                const receiptFile = document.getElementById('receiptUpload').files[0];
+                if (!receiptFile) {
+                    alert("Please upload your payment receipt for GCash payment.");
+                    return;
+                }
             }
             
             // Display confirmation modal with appropriate message
@@ -313,6 +613,8 @@
             document.getElementById('pickupForm').reset();
             document.getElementById('qrSection').style.display = 'none';
             document.querySelector('input[value="cash"]').checked = true;
+            document.getElementById('fileStatus').innerHTML = '';
+            document.getElementById('receiptUpload').value = '';
         }
         
         // Initialize the form

@@ -3,12 +3,17 @@
 session_start();
 include __DIR__ . "/../backend/db.php";
 
+// ✅ DEBUG: Check if connection exists
+if (!isset($conn)) {
+    die("ERROR: Database connection not established. Check db.php file.");
+}
+
 $verification_result = null;
 $error_message = null;
 $success_message = null;
 $otp_sent = false;
 $show_otp_form = false;
-$search_mode = isset($_POST['mode']) ? $_POST['mode'] : (isset($_SESSION['search_mode']) ? $_SESSION['search_mode'] : 'transaction');
+$search_mode = $_POST['mode'] ?? $_SESSION['search_mode'] ?? 'transaction';
 
 // Handle OTP generation and sending (mock implementation)
 function generateOTP() {
@@ -28,13 +33,8 @@ function sendOTP($contact, $otp, $method) {
     return true;
 }
 
-// Generate transaction number from customer ID
-function generateTransactionNumber($customer_id) {
-    return 'CCR-' . str_pad($customer_id, 2, '0', STR_PAD_LEFT);
-}
-
-// Extract customer ID from transaction number
-function extractCustomerIdFromTransaction($transaction_number) {
+// ✅ FIXED: Extract transaction_id from transaction number
+function extractTransactionIdFromNumber($transaction_number) {
     if (preg_match('/^CCR-(\d+)$/', $transaction_number, $matches)) {
         return intval($matches[1]);
     }
@@ -52,46 +52,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     } elseif ($action === 'track_transaction') {
         // Transaction number tracking
-        $transaction_number = strtoupper(trim($_POST['transaction_number'] ?? ''));
+        $transaction_number = strtoupper(trim($_POST['transaction_no'] ?? ''));
         
         if (empty($transaction_number)) {
             $error_message = "Transaction number is required.";
         } else {
-            // Extract customer ID from transaction number
-            $customer_id = extractCustomerIdFromTransaction($transaction_number);
+            // ✅ DEBUG: Log the query
+            error_log("Searching for transaction: " . $transaction_number);
             
-            if (!$customer_id) {
-                $error_message = "Invalid transaction number format. Please use format: CCR-XX (e.g., CCR-01, CCR-15)";
-            } else {
-                try {
-                    $stmt = $conn->prepare("
-                        SELECT c.customer_id, c.fullname, c.email_address, c.contactno, 
-                               c.certificate_type, c.copies, c.purpose, c.created_at,
-                               COALESCE(m.husbandname, b.fullname, d.fullname) as certificate_name,
-                               COALESCE(m.wifename, '') as spouse_name,
-                               COALESCE(m.marriagedate, b.birthdate, d.deathdate) as certificate_date,
-                               COALESCE(m.marriageplace, b.birthplace, d.deathplace) as certificate_place
-                        FROM customer c
-                        LEFT JOIN marriage m ON c.customer_id = m.customer_id
-                        LEFT JOIN birth b ON c.customer_id = b.customer_id
-                        LEFT JOIN death d ON c.customer_id = d.customer_id
-                        WHERE c.customer_id = ?
-                    ");
-                    
-                    $stmt->execute([$customer_id]);
-                    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    
-                    if (empty($results)) {
-                        $error_message = "No records found for transaction number: " . htmlspecialchars($transaction_number) . ". Please verify your transaction number.";
-                    } else {
-                        $verification_result = $results;
-                        $success_message = "Transaction found successfully!";
-                    }
-                    
-                } catch (PDOException $e) {
-                    $error_message = "Database error occurred. Please try again later.";
-                    error_log("Database error: " . $e->getMessage());
+            try {
+                $stmt = $conn->prepare("
+                    SELECT 
+                        t.transaction_id,
+                        t.transaction_no,
+                        t.customer_id,
+                        t.transaction_status,
+                        t.transactiontype,
+                        t.created_at,
+                        t.updated_at,
+                        c.fullname,
+                        c.email_address,
+                        c.contactno,
+                        c.certificate_type,
+                        c.copies,
+                        c.purpose
+                    FROM transaction t
+                    JOIN customer c ON t.customer_id = c.customer_id
+                    WHERE t.transaction_no = ?
+                ");
+                
+                if (!$stmt) {
+                    throw new Exception("Prepare failed: " . print_r($conn->errorInfo(), true));
                 }
+                
+                if (!$stmt->execute([$transaction_number])) {
+                    throw new Exception("Execute failed: " . print_r($stmt->errorInfo(), true));
+                }
+                
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                error_log("Found " . count($results) . " results");
+                
+                if (empty($results)) {
+                    $error_message = "No records found for: " . htmlspecialchars($transaction_number);
+                } else {
+                    $verification_result = $results;
+                    $success_message = "Transaction found successfully!";
+                }
+                
+            } catch (PDOException $e) {
+                // ✅ SHOW REAL ERROR
+                $error_message = "Database Error: " . $e->getMessage();
+                error_log("PDOException: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+                
+            } catch (Exception $e) {
+                // ✅ SHOW REAL ERROR
+                $error_message = "Error: " . $e->getMessage();
+                error_log("Exception: " . $e->getMessage());
             }
         }
         
@@ -108,15 +125,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = "All fields are required for identity verification.";
         } else {
             try {
-                // Search for matching records
-                $search_field = ($contact_method === 'email') ? 'email_address' : 'contactno';
-                
+                // ✅ FIXED: Use parameterized query with correct column names
+                $contact_field = $contact_method === 'email' ? 'c.email_address' : 'c.contactno';
                 $stmt = $conn->prepare("
-                    SELECT customer_id, fullname, email_address, contactno, certificate_type, created_at
-                    FROM customer 
-                    WHERE LOWER(fullname) = LOWER(?) 
-                    AND $search_field = ?
-                    ORDER BY created_at DESC
+                    SELECT 
+                        t.transaction_id,
+                        t.transaction_no,
+                        t.customer_id,
+                        t.status,
+                        c.fullname,
+                        c.email_address,
+                        c.contactno,
+                        c.certificate_type,
+                        c.created_at
+                    FROM transaction t
+                    JOIN customer c ON t.customer_id = c.customer_id
+                    WHERE LOWER(c.fullname) = LOWER(?) 
+                    AND $contact_field = ?
+                    ORDER BY c.created_at DESC
                 ");
                 
                 $stmt->execute([$fullname, $contact_value]);
@@ -167,27 +193,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // OTP verified successfully
             if (isset($_SESSION['pending_results'])) {
-                $customer_ids = array_column($_SESSION['pending_results'], 'customer_id');
+                $transaction_ids = array_column($_SESSION['pending_results'], 'transaction_id');
                 
                 try {
-                    // Get full details for verified customers
-                    $placeholders = str_repeat('?,', count($customer_ids) - 1) . '?';
+                    // ✅ FIXED: Get full details using transaction_id
+                    $placeholders = str_repeat('?,', count($transaction_ids) - 1) . '?';
                     $stmt = $conn->prepare("
-                        SELECT c.customer_id, c.fullname, c.email_address, c.contactno, 
-                               c.certificate_type, c.copies, c.purpose, c.created_at,
-                               COALESCE(m.husbandname, b.fullname, d.fullname) as certificate_name,
-                               COALESCE(m.wifename, '') as spouse_name,
-                               COALESCE(m.marriagedate, b.birthdate, d.deathdate) as certificate_date,
-                               COALESCE(m.marriageplace, b.birthplace, d.deathplace) as certificate_place
-                        FROM customer c
-                        LEFT JOIN marriage m ON c.customer_id = m.customer_id
-                        LEFT JOIN birth b ON c.customer_id = b.customer_id
-                        LEFT JOIN death d ON c.customer_id = d.customer_id
-                        WHERE c.customer_id IN ($placeholders)
-                        ORDER BY c.created_at DESC
+                        SELECT 
+                            t.transaction_id,
+                            t.transaction_no,
+                            t.customer_id,
+                            t.status,
+                            t.transactiontype,
+                            t.created_at,
+                            c.fullname,
+                            c.email_address,
+                            c.contactno,
+                            c.certificate_type,
+                            c.copies,
+                            c.purpose,
+                            CASE 
+                                WHEN c.certificate_type = 'marriage' THEN m.husbandname
+                                WHEN c.certificate_type = 'livebirth' THEN b.childinfo
+                                WHEN c.certificate_type = 'death' THEN d.deceasedname
+                                ELSE 'N/A'
+                            END as certificate_name,
+                            COALESCE(m.wifename, '') as spouse_name,
+                            CASE 
+                                WHEN c.certificate_type = 'marriage' THEN m.marriagedate
+                                WHEN c.certificate_type = 'livebirth' THEN b.birthdate
+                                WHEN c.certificate_type = 'death' THEN d.deathdate
+                                ELSE NULL
+                            END as certificate_date,
+                            CASE 
+                                WHEN c.certificate_type = 'marriage' THEN m.marriageplace
+                                WHEN c.certificate_type = 'livebirth' THEN b.birthplace
+                                WHEN c.certificate_type = 'death' THEN d.deathplace
+                                ELSE NULL
+                            END as certificate_place
+                        FROM transaction t
+                        JOIN customer c ON t.customer_id = c.customer_id
+                        LEFT JOIN marriage m ON c.customer_id = m.customer_id AND c.certificate_type = 'marriage'
+                        LEFT JOIN birth b ON c.customer_id = b.customer_id AND c.certificate_type = 'livebirth'
+                        LEFT JOIN death d ON c.customer_id = d.customer_id AND c.certificate_type = 'death'
+                        WHERE t.transaction_id IN ($placeholders)
+                        ORDER BY t.created_at DESC
                     ");
                     
-                    $stmt->execute($customer_ids);
+                    $stmt->execute($transaction_ids);
                     $verification_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $success_message = "Identity verified successfully! Found " . count($verification_result) . " request(s).";
                     
@@ -232,21 +285,17 @@ if (isset($_SESSION['otp']) && isset($_SESSION['pending_results']) && !$verifica
 }
 
 // Get status based on processing stage
-function getRequestStatus($created_at) {
-    $now = new DateTime();
-    $created = new DateTime($created_at);
-    $diff = $now->diff($created);
-    $hours = $diff->h + ($diff->days * 24);
+function getRequestStatus($created_at, $status) {
+    // ✅ FIXED: Use database status field instead of calculating from date
+    $status_map = [
+        'pending' => ['status' => 'Pending', 'color' => 'warning', 'icon' => 'clock'],
+        //'on_review' => ['status' => 'Under Review', 'color' => 'info', 'icon' => 'search'],
+        'approved' => ['status' => 'Processing', 'color' => 'primary', 'icon' => 'cog'],
+        'completed' => ['status' => 'Ready for Pickup', 'color' => 'success', 'icon' => 'check-circle'],
+        'cancelled' => ['status' => 'Cancelled', 'color' => 'danger', 'icon' => 'times-circle']
+    ];
     
-    if ($hours < 2) {
-        return ['status' => 'Pending', 'color' => 'warning', 'icon' => 'clock'];
-    } elseif ($hours < 24) {
-        return ['status' => 'Under Review', 'color' => 'info', 'icon' => 'search'];
-    } elseif ($hours < 72) {
-        return ['status' => 'Processing', 'color' => 'primary', 'icon' => 'cog'];
-    } else {
-        return ['status' => 'Ready for Pickup', 'color' => 'success', 'icon' => 'check-circle'];
-    }
+    return $status_map[strtolower($status)] ?? ['status' => 'Unknown', 'color' => 'secondary', 'icon' => 'question'];
 }
 ?>
 
@@ -255,7 +304,6 @@ function getRequestStatus($created_at) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Status Tracker - CCRO</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -584,14 +632,15 @@ function getRequestStatus($created_at) {
                         
                         <div class="text-center mb-4">
                             <h5><i class="fas fa-receipt me-2"></i>Enter Your Transaction Number</h5>
-                            <p class="text-muted">Transaction numbers are generated from your customer ID</p>
+                            <p class="text-muted">Enter the transaction number you received from your request confirmation</p>
                         </div>
                         
                         <div class="row justify-content-center">
                             <div class="col-md-8">
                                 <div class="form-floating">
                                     <input type="text" class="form-control transaction-input" id="transaction_number" 
-                                           name="transaction_number" placeholder="CCR-XX" 
+                                           name="transaction_no"  
+                                           placeholder="CCR-XX" 
                                            pattern="CCR-\d+" title="Format: CCR-XX" required>
                                     <label for="transaction_number">
                                         <i class="fas fa-receipt me-2"></i>Transaction Number
@@ -601,7 +650,7 @@ function getRequestStatus($created_at) {
                                 <div class="transaction-example">
                                     <small class="text-muted">
                                         <i class="fas fa-info-circle me-1"></i>
-                                        <strong>Format Examples:</strong> CCR-01, CCR-05, CCR-12<br>
+                                        <strong>Format Examples:</strong> CCR-98, CCR-99, CCR-100<br>
                                         Your transaction number was provided when you submitted your request.
                                     </small>
                                 </div>
@@ -733,18 +782,17 @@ function getRequestStatus($created_at) {
                 <div class="results-section">
                     <?php foreach ($verification_result as $request): ?>
                         <?php 
-                        $status_info = getRequestStatus($request['created_at']);
-                        $transaction_number = generateTransactionNumber($request['customer_id']);
+                        $status_info = getRequestStatus($request['created_at'], $request['transaction_status']);
                         ?>
                         <div class="request-card" style="--status-color: var(--bs-<?php echo $status_info['color']; ?>);">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="mb-1">
                                         <i class="fas fa-certificate me-2"></i>
-                                        <?php echo ucfirst($request['certificate_type']); ?> Certificate Request
+                                        <?php echo ucfirst($request['transactiontype']); ?> Certificate Request
                                     </h5>
-                                    <p class="transaction-number mb-0"><?php echo $transaction_number; ?></p>
-                                    <small class="text-muted">Customer ID: <?php echo $request['customer_id']; ?></small>
+                                    <p class="transaction-number mb-0"><?php echo htmlspecialchars($request['transaction_no']); ?></p>
+                                    <small class="text-muted">Transaction ID: <?php echo $request['transaction_id']; ?></small>
                                 </div>
                                 <span class="badge bg-<?php echo $status_info['color']; ?> status-badge">
                                     <i class="fas fa-<?php echo $status_info['icon']; ?> me-1"></i>
@@ -756,21 +804,21 @@ function getRequestStatus($created_at) {
                                 <div class="progress-step completed" title="Submitted">
                                     <i class="fas fa-paper-plane"></i>
                                 </div>
-                                <div class="progress-step <?php echo in_array($status_info['status'], ['Under Review', 'Processing', 'Ready for Pickup']) ? 'completed' : ''; ?>" title="Under Review">
+                                <div class="progress-step <?php echo in_array($status_info['status'], ['Processing', 'Ready for Pickup']) ? 'completed' : ''; ?>" title="Pending">
                                     <i class="fas fa-search"></i>
                                 </div>
                                 <div class="progress-step <?php echo in_array($status_info['status'], ['Processing', 'Ready for Pickup']) ? 'completed' : ''; ?>" title="Processing">
                                     <i class="fas fa-cog"></i>
                                 </div>
-                                <div class="progress-step <?php echo $status_info['status'] === 'Ready for Pickup' ? 'completed' : ''; ?>" title="Ready">
+                                <div class="progress-step <?php echo $status_info['status'] === 'Completed' ? 'completed' : ''; ?>" title="Ready">
                                     <i class="fas fa-check"></i>
                                 </div>
                             </div>
                             
                             <div class="info-grid">
                                 <div class="info-item">
-                                    <div class="info-label">Certificate Name</div>
-                                    <div class="info-value"><?php echo htmlspecialchars($request['certificate_name'] ?? 'N/A'); ?></div>
+                                    <div class="info-label">Requester Name</div>
+                                    <div class="info-value"><?php echo htmlspecialchars($request['fullname'] ?? 'N/A'); ?></div>
                                 </div>
                                 <?php if (!empty($request['spouse_name'])): ?>
                                     <div class="info-item">
@@ -790,18 +838,18 @@ function getRequestStatus($created_at) {
                                     <div class="info-label">Request Date</div>
                                     <div class="info-value"><?php echo date('M j, Y g:i A', strtotime($request['created_at'])); ?></div>
                                 </div>
-                                <?php if ($request['certificate_date']): ?>
+                                <!-- <?php if ($request['created_at']): ?>
                                     <div class="info-item">
                                         <div class="info-label">Certificate Date</div>
-                                        <div class="info-value"><?php echo date('M j, Y', strtotime($request['certificate_date'])); ?></div>
+                                        <div class="info-value"><?php echo date('M j, Y', strtotime($request['created_at'])); ?></div>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?> -->
                             </div>
                             
                             <?php if ($status_info['status'] === 'Ready for Pickup'): ?>
                                 <div class="alert alert-info alert-custom mt-3">
                                     <i class="fas fa-info-circle me-2"></i>
-                                    <strong>Ready for Pickup!</strong> Your certificate is ready. Please bring a valid ID and this transaction number (<?php echo $transaction_number; ?>) to our office.
+                                    <strong>Ready for Pickup!</strong> Your certificate is ready. Please bring a valid ID and this transaction number (<?php echo htmlspecialchars($request['transaction_no']); ?>) to our office.
                                 </div>
                             <?php endif; ?>
                         </div>

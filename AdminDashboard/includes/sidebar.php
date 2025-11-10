@@ -4,51 +4,51 @@ $current = basename($_SERVER['PHP_SELF']);
 <!-- sidebar.php -->
 <div class="sidebar" id="sidebar">
     <div class="brand">
-        <a href="http://localhost/CCRO-Request/AdminDashboard/includes/home.php" style="text-decoration: none; color: inherit;">
-            <h4>Appointment System</h4>
+        <a href="http://localhost/CCRO-Request/AdminDashboard/dashboard.php" style="text-decoration: none; color: inherit;">
+            <h4>Transaction System</h4>
         </a>
     </div>
     
     <nav class="nav flex-column mt-3">
         <div class="nav-item">
-            <a class="nav-link <?php if($current == 'home.php') echo 'active'; ?>" href='http://localhost/CCRO-Request/AdminDashboard/includes/home.php'>
+            <a class="nav-link <?php if($current == 'index.php') echo 'active'; ?>" href='http://localhost/CCRO-Request/AdminDashboard/dashboard/index.php'>
                 <i class='bx bx-home'></i>
                 <span>Dashboard</span>
             </a>
         </div>
         <div class="nav-item">
-            <a class="nav-link <?php if($current == 'transactions.php') echo 'active'; ?>" href='http://localhost/CCRO-Request/AdminDashboard/transactions.php'>
-                <i class='bx bx-list-ul'></i>
-                <span>View Transactions</span>
+            <a class="nav-link <?php if($current == 'archiving.php') echo 'active'; ?>" href='http://localhost/CCRO-Request/AdminDashboard/archiving/archiving.php'>
+                <i class='bx bx-bar-chart-alt-2'></i>
+                <span>Archiving</span>
             </a>
         </div>
         <div class="nav-item">
-            <a class="nav-link <?php if($current == 'report.php') echo 'active'; ?>" href='http://localhost/CCRO-Request/AdminDashboard/report.php'>
-                <i class='bx bx-bar-chart-alt-2'></i>
-                <span>Report</span>
+            <a class="nav-link <?php if($current == 'transactions.php') echo 'active'; ?>" href='http://localhost/CCRO-Request/AdminDashboard/transactions/transactions.php'>
+                <i class='bx bx-list-ul'></i>
+                <span>Transactions</span>
             </a>
         </div>
         <div class="nav-item">
             <a class="nav-link <?php if($current == 'settings.php') echo 'active'; ?>" href='http://localhost/CCRO-Request/AdminDashboard/settings.php'>
                 <i class='bx bx-cog'></i>
-                <span>Settings</span>
+                <span>Admins</span>
             </a>
         </div>
-        <div class="nav-item">
+        <!-- <div class="nav-item">
             <a class="nav-link <?php if($current == 'admin.php') echo 'active'; ?>" href='http://localhost/CCRO-Request/admin.php'>
                 <i class='bx bx-log-out'></i>
                 <span>Logout</span>
             </a>
-        </div>
+        </div> -->
     </nav>
     
-    <div class="user-info">
+    <!-- <div class="user-info">
         <div class="user-avatar">
             <span>B</span>
         </div>
         <div class="user-name">Bernadette Marande</div>
         <div class="user-email">bernadette@ccro.gov.ph</div>
-    </div>
+    </div> -->
 </div>
 
 <style>
@@ -172,6 +172,4 @@ $current = basename($_SERVER['PHP_SELF']);
         border-radius: 0;
     }
 
-
-</style>}}
 </style>

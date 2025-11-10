@@ -11,10 +11,10 @@ if (!isset($_SESSION['customer_data'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $customer_data = $_SESSION['customer_data'];
-    $certificate_type = 'livebirth'; // Changed from marriage to birth
+    $certificate_type = 'livebirth';
 
     try {
-        // Get copies from form data (first certificate as fallback)
+        // Get copies from form data
         $copies = 1;
         if (isset($_POST['copies'])) {
             if (is_array($_POST['copies'])) {
@@ -39,13 +39,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         $customer_id = $conn->lastInsertId();
 
-        // Generate transaction number using customer_id
-        include "../transaction.php";
+        // Generate transaction number
         $transaction_number = generateTransactionFromId($customer_id);
-        $_SESSION['transaction_number'] = $transaction_number;
+        
+        // **INSERT INTO TRANSACTION TABLE**
+        $stmt = $conn->prepare("
+            INSERT INTO transaction (customer_id, transaction_no, status, transactiontype, created_at) 
+            VALUES (?, ?, ?, ?, NOW())
+        ");
+        $stmt->execute([
+            $customer_id,
+            $transaction_number,
+            'Pending',
+            $certificate_type
+        ]);
+        $transaction_id = $conn->lastInsertId();
 
-        // Handle multiple birth certificates
-        // If only one certificate, $_POST['child_firstname'] is a string, else it's an array
+        // Store in session
+        $_SESSION['transaction_number'] = $transaction_number;
+        $_SESSION['transaction_id'] = $transaction_id;
+
+        // Handle birth certificates...
         $is_multiple = is_array($_POST['child_firstname'] ?? null);
 
         if ($is_multiple) {
@@ -65,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$customer_id, $registry_id, $childinfo, $birthdate, $birthplace, $fathersname, $mothersname, $sex]);
             }
         } else {
-            // Single certificate fallback
+            // Single certificate
             $registry_id = trim($_POST['registry_id'] ?? '');
             $registry_id = ($registry_id === '') ? null : intval($registry_id);
 
@@ -84,12 +98,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($_SESSION['customer_data']);
         $_SESSION['customer_id'] = $customer_id;
 
-        // Redirect to verification page
-        header("Location: ../verification.php");
+        // Show success message and redirect
+        echo "<div style='position:fixed;top:30px;right:30px;z-index:2000;min-width:300px;' class='alert alert-success shadow'>Livebirth certificate request submitted successfully!</div>";
+        echo "<script>setTimeout(function(){ window.location.href = '../verification.php'; }, 2000);</script>";
         exit;
 
     } catch (PDOException $e) {
         echo "<div class='alert alert-danger'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
+        error_log("Database error in livebirth.php: " . $e->getMessage());
     }
 }
 ?>
@@ -164,39 +180,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       content: " *";
       color: red;
       font-weight: bold;
-    }
-    
-    /* Styles for checklist modal */
-    .checklist-modal .modal-content {
-      border-radius: 20px;
-      background-color: #f0f9ff;
-    }
-    .checklist-modal .modal-header {
-      background-color: #38bdf8;
-      color: white;
-      border-radius: 20px 20px 0 0;
-    }
-    .checklist-modal .modal-body {
-      padding: 30px;
-    }
-    .checklist-modal .proceed-btn {
-      background-color: #38bdf8;
-      color: white;
-      padding: 10px 30px;
-      border-radius: 50px;
-      border: none;
-      font-weight: 600;
-    }
-    .checklist-item {
-      margin-bottom: 10px;
-    }
-    .checklist-header {
-      background-color: #e6f7ff;
-      padding: 10px 15px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      text-align: center;
-      font-weight: 500;
     }
   </style>
 </head>
@@ -348,7 +331,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <!-- Action Buttons -->
         <div class="d-flex justify-content-between mt-4">
-          <button type="button" class="btn btn-add px-4 py-2" onclick="showConfirmation()">Add Another Certificate</button>
           <button type="button" class="btn btn-next px-4 py-2" onclick="validateAndShowChecklist(this)">NEXT</button>
         </div>
       </form>
@@ -371,76 +353,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 
-  <!-- Checklist Modal -->
-  <div class="modal fade checklist-modal" id="checklistModal" tabindex="-1" aria-labelledby="checklistModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="checklistModalLabel">Document Requirements</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="checklist-header">
-            Please check the following requirements. You cannot proceed if any requirement is incomplete.
-          </div>
-          <div class="alert alert-warning" id="checklistWarning" style="display: none;">
-            <strong>Warning:</strong> You must select at least one ID to proceed.
-          </div>
-          <div class="mb-3">
-            <div class="fw-bold mb-2">✓ The ID's that are available to you</div>
-            
-            <div class="row">
-              <div class="col-md-6">
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="nationalId">
-                  <label class="form-check-label" for="nationalId">National ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="driversLicense">
-                  <label class="form-check-label" for="driversLicense">Driver's License</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="umidId">
-                  <label class="form-check-label" for="umidId">UMID ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="tinId">
-                  <label class="form-check-label" for="tinId">TIN ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="votersCert">
-                  <label class="form-check-label" for="votersCert">Voter's Certificate</label>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="philhealth">
-                  <label class="form-check-label" for="philhealth">PhilHealth</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="prcId">
-                  <label class="form-check-label" for="prcId">PRC ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="owwaId">
-                  <label class="form-check-label" for="owwaId">OWWA ID</label>
-                </div>
-                <div class="checklist-item">
-                  <input class="form-check-input" type="checkbox" id="seniorId">
-                  <label class="form-check-label" for="seniorId">Senior Citizen ID</label>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="d-flex justify-content-center mt-4">
-            <button type="button" class="proceed-btn" id="modalProceedBtn" onclick="proceedToNextStep()" disabled>PROCEED</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-  </div>
+  <!-- Include Checklist Modal -->
+  <?php include "checklist_modal.php"; ?>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -448,124 +362,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- JavaScript Logic -->
   <script>
     let certCountYes = 1;
-    
-    // Add event listeners to all checkboxes in checklist
-    document.addEventListener('DOMContentLoaded', function() {
-      const allCheckboxes = document.querySelectorAll('#checklistModal input[type="checkbox"]');
-      allCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', validateChecklist);
-      });
-    });
-    
-    function validateAndShowChecklist(btn) {
-  const form = btn.closest('form');
-  
-  // Add validation styling
-  form.classList.add('was-validated');
-  
-  if (form.checkValidity()) {
-    const checklistModal = new bootstrap.Modal(document.getElementById('checklistModal'));
-    checklistModal.show();
-
-    // Reset checklist state
-    const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
-    idCheckboxes.forEach(checkbox => checkbox.checked = false);
-
-    // Reset proceed button state
-    const proceedBtn = document.getElementById('modalProceedBtn');
-    if (proceedBtn) {
-      proceedBtn.disabled = true;
-    }
-    
-    const warningElement = document.getElementById('checklistWarning');
-    if (warningElement) {
-      warningElement.style.display = 'block';
-    }
-
-    // Store reference to the current form for submission
-    window.currentBirthForm = form;
-  } else {
-    // Scroll to first invalid field
-    const firstInvalid = form.querySelector(':invalid');
-    if (firstInvalid) {
-      firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      firstInvalid.focus();
-    }
-  }
-}
-    
-    // Function to validate the checklist
-    function validateChecklist() {
-      const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
-      const anyIdSelected = Array.from(idCheckboxes).some(checkbox => checkbox.checked);
-      const warningElement = document.getElementById('checklistWarning');
-      const proceedButton = document.getElementById('modalProceedBtn');
-      
-      if (anyIdSelected) {
-        proceedButton.disabled = false;
-        warningElement.style.display = 'none';
-      } else {
-        proceedButton.disabled = true;
-        warningElement.style.display = 'block';
-      }
-    }
-    
-    // Function to proceed after checklist verification
-    function proceedToNextStep() {
-      const idCheckboxes = document.querySelectorAll('#checklistModal .col-md-6 .form-check-input');
-      const anyIdSelected = Array.from(idCheckboxes).some(checkbox => checkbox.checked);
-
-      if (anyIdSelected) {
-        const checklistModal = bootstrap.Modal.getInstance(document.getElementById('checklistModal'));
-        checklistModal.hide();
-
-        // Find and submit the form properly
-        const form = document.getElementById('birthCertForm');
-        if (form) {
-            form.submit();
-        } else if (window.currentBirthForm) {
-            window.currentBirthForm.submit();
-        } else {
-            // Fallback: create a hidden form to submit
-            const hiddenForm = document.createElement('form');
-            hiddenForm.method = 'POST';
-            hiddenForm.action = '';
-            
-            // Copy all form data from the visible form
-            const visibleForm = document.querySelector('.birth-form');
-            if (visibleForm) {
-                const formData = new FormData(visibleForm);
-                for (let [key, value] of formData.entries()) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = value;
-                    hiddenForm.appendChild(input);
-                }
-            }
-            
-            document.body.appendChild(hiddenForm);
-            hiddenForm.submit();
-        }
-      } else {
-        // Show visual indicators for missing requirements
-        const warningElement = document.getElementById('checklistWarning');
-        
-        // Show warning with animation
-        warningElement.style.display = 'block';
-        warningElement.classList.add('animate__animated', 'animate__shakeX');
-        setTimeout(() => {
-            warningElement.classList.remove('animate__animated', 'animate__shakeX');
-        }, 1000);
-        
-        // Highlight ID section
-        const idSection = document.querySelector('#checklistModal .fw-bold.mb-2');
-        if (idSection) {
-            idSection.classList.add('text-danger');
-            setTimeout(() => idSection.classList.remove('text-danger'), 3000);
-        }
-      }
-    }
 
     function showConfirmation() {
       const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
@@ -656,10 +452,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         `;
         form.appendChild(btnGroup);
       }
-    }
-
-    function addDifferentRequester() {
-      window.location.href = 'livebirth.php?different_requester=yes';
     }
   </script>
 </body>

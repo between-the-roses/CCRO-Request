@@ -7,10 +7,10 @@
     <!-- Dashboard Title -->
     <div class="dashboard-title">
         <h5>Civil Registry Office Dashboard</h5>
-        <small>Admin Panel</small>
+        <!-- <small>Admin Panel</small> -->
     </div>
     
-    <!-- Notifications -->
+    <!-- Notifications
     <div class="navbar-notifications">
         <button class="notification-btn" onclick="toggleNotifications()">
             <i class="bx bx-bell"></i>
@@ -46,7 +46,7 @@
                 <a href="#">View all notifications</a>
             </div>
         </div>
-    </div>
+    </div> -->
     
     <!-- User Info -->
     <div class="user">
@@ -71,7 +71,7 @@
                 </div>
             </div>
             <hr class="menu-divider">
-            <a href="#" class="menu-item">
+            <!-- <a href="#" class="menu-item">
                 <i class="bx bx-user"></i> Profile
             </a>
             <a href="#" class="menu-item">
@@ -79,9 +79,9 @@
             </a>
             <a href="#" class="menu-item">
                 <i class="bx bx-help-circle"></i> Help
-            </a>
+            </a> -->
             <hr class="menu-divider">
-            <a href="#" class="menu-item logout">
+            <a href="http://localhost/CCRO-Request/admin.php" class="menu-item logout">
                 <i class="bx bx-log-out"></i> Logout
             </a>
         </div>
@@ -192,7 +192,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3c5a76, #4a6b8a);
     border-bottom: none;
     height: 65px;
     position: fixed;

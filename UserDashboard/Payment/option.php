@@ -5,39 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iligan City Document Delivery</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body, html {
             height: 100%;
-            margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
         }
         
         .background {
-            background-image: url('../../images/background.png');
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            position: relative;
-            filter: blur(0px);
-            margin-top: 85px; /* Added to make room for the fixed header */
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 30%, #3b82f6 60%, #60a5fa 80%, #f97316 100%);
+            z-index: -2;
         }
         
-        /* Updated header styling to match paste-2.txt */
+        .background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(30, 58, 138, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        /* Modern header styling */
         header {
-            background-color: white;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            padding: 20px 30px;
-            box-shadow: 0 8px 11px rgba(14, 55, 54, 0.15);
+            padding: 15px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             display: flex;
             align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .logo-img {
-            height: 45px;
-            margin-right: 15px;
+            height: 40px;
+            margin-right: 12px;
+            filter: brightness(1.2) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
         }
         
         .modal-container {
@@ -46,120 +69,278 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 10;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .modal {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
             text-align: center;
-            max-width: 400px;
+            max-width: 480px;
             width: 90%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideUp 0.4s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal h2 {
+            color: #000000;
+            margin-bottom: 16px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .modal p {
+            color: #4a5568;
+            margin-bottom: 32px;
+            font-size: 16px;
+            line-height: 1.6;
         }
         
         .option-modal {
-            display: none;
+            display: flex;
         }
         
         .button {
-            padding: 10px 20px;
-            margin: 10px;
+            padding: 16px 32px;
+            margin: 8px;
             border: none;
-            border-radius: 5px;
+            border-radius: 16px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .button:hover::before {
+            left: 100%;
         }
         
         .next-button {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #1e3a8a 0%, #f97316 100%);
             color: white;
+            min-width: 140px;
+            box-shadow: 0 8px 24px rgba(30, 58, 138, 0.4);
         }
         
         .next-button:hover {
-            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(30, 58, 138, 0.5);
         }
         
-        .pickup-button {
-            background-color: #f8f9fa;
-            color: #212529;
+        .next-button:active {
+            transform: translateY(0px);
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        
+        .pickup-button, .delivery-button {
+            background: rgba(255, 255, 255, 0.8);
+            color: #000000;
             display: flex;
             align-items: center;
+            justify-content: center;
+            padding: 20px 32px;
+            border: 2px solid rgba(30, 58, 138, 0.2);
+            min-width: 200px;
+            font-size: 18px;
         }
         
-        .pickup-button:hover {
-            background-color: #e2e6ea;
-        }
-        
-        .delivery-button {
-            background-color: #f8f9fa;
-            color: #212529;
-            display: flex;
-            align-items: center;
-        }
-        
-        .delivery-button:hover {
-            background-color: #e2e6ea;
+        .pickup-button:hover, .delivery-button:hover {
+            background: rgba(30, 58, 138, 0.1);
+            border-color: rgba(30, 58, 138, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(30, 58, 138, 0.2);
         }
         
         .icon {
-            margin-right: 8px;
+            margin-right: 12px;
+            font-size: 24px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3a8a 0%, #f97316 100%);
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+        
+        .pickup-icon::before {
+            content: '📍';
+            font-size: 16px;
+        }
+        
+        .delivery-icon::before {
+            content: '🚚';
+            font-size: 16px;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .float-element {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(59, 130, 246, 0.15);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .float-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .float-element:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+        
+        .float-element:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 0.8;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .modal {
+                padding: 32px 24px;
+                margin: 20px;
+            }
+            
+            .modal h2 {
+                font-size: 24px;
+            }
+            
+            .options-container {
+                flex-direction: column;
+            }
+            
+            .pickup-button, .delivery-button {
+                min-width: unset;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- New header section matching paste-2.txt -->
-    <header>
-        <img src="../../images/Logo 1.png" alt="Logo 1" class="logo-img" />
-        <img src="../../images/Logo 2.png" alt="Logo 2" class="logo-img" />
-    </header>
+    <!-- Floating background elements -->
+    <div class="floating-elements">
+        <div class="float-element"></div>
+        <div class="float-element"></div>
+        <div class="float-element"></div>
+    </div>
+
+    <?php include '/../includes/navbar.php'; ?>
     
     <div class="background"></div>
     
-    <!-- First Modal - Document Found Message -->
-    <div class="modal-container" id="documentFoundModal">delivery-payment<div class="modal">
-            <h2>Document Found!</h2>
-            <p>Your requested document has been found and is ready for processing. Please click Next to choose your preferred delivery method.</p>
-            <button class="button next-button" onclick="showOptionsModal()">Next</button>
-        </div>
-    </div>
-    
-    <!-- Second Modal - Delivery Options -->
-    <div class="modal-container option-modal" id="optionsModal">
+    <!-- Delivery Options Modal -->
+    <div class="modal-container" id="optionsModal">
         <div class="modal">
-            <h2>Select your preferred option?</h2>
-            <div style="display: flex; justify-content: center;">
+            <h2>Select your preferred option</h2>
+            <div class="options-container">
                 <button class="button pickup-button" onclick="selectOption('pickup')">
-                    <span class="icon">🔄</span> Pick - Up
+                    <span class="icon pickup-icon"></span>
+                    Pick-Up
                 </button>
                 <button class="button delivery-button" onclick="selectOption('delivery')">
-                    <span class="icon">🚚</span> Delivery
+                    <span class="icon delivery-icon"></span>
+                    Delivery
                 </button>
             </div>
         </div>
     </div>
     
     <script>
-        function showOptionsModal() {
-            document.getElementById('documentFoundModal').style.display = 'none';
-            document.getElementById('optionsModal').style.display = 'flex';
-        }
-        
         function selectOption(option) {
             if (option === 'pickup') {
-                // Redirect to the pickup form page
-                window.location.href = 'pickup-form.html';
+                window.location.href = '/CCRO-Request/UserDashboard/payment/pickup-form.php';
             } else if (option === 'delivery') {
-                // Redirect to the delivery form page
-                window.location.href = 'delivery-form.html';
-            }
+                window.location.href = './delivery-payment.php'; }
         }
+        
+        // Add smooth interaction effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.button');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0px)';
+                });
+            });
+        });
     </script>
 </body>
 </html>

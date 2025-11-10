@@ -3,11 +3,11 @@
 session_start();
 include __DIR__ . "/../../backend/db.php";
 
-// Check if user is logged in (you can adjust this based on your authentication system)
-if (!isset($_SESSION['user_email']) && !isset($_SESSION['customer_data'])) {
-    //header("Location: ../customer.php");
-    exit;
-}
+// // Check if user is logged in (you can adjust this based on your authentication system)
+// if (!isset($_SESSION['user_email']) && !isset($_SESSION['customer_data'])) {
+//     //header("Location: ../customer.php");
+//     exit;
+// }
 
 // Get user email from session
 $user_email = $_SESSION['user_email'] ?? $_SESSION['customer_data']['email_address'] ?? '';
@@ -58,24 +58,24 @@ if (empty($user_email)) {
 
 // Function to format certificate type
 function formatCertificateType($type) {
-    switch($type) {
-        case 'marriage': return 'Marriage Certificate';
-        case 'livebirth': return 'Birth Certificate';
-        case 'death': return 'Death Certificate';
-        default: return ucfirst($type) . ' Certificate';
-    }
+    return match($type) {
+        'marriage' => 'Marriage Certificate',
+        'livebirth' => 'Birth Certificate',
+        'death' => 'Death Certificate',
+        default => ucfirst($type) . ' Certificate',
+    };
 }
 
 // Function to format status
 function formatStatus($status) {
-    switch(strtolower($status)) {
-        case 'pending': return '<span class="badge bg-warning">Pending</span>';
-        case 'processing': return '<span class="badge bg-info">Processing</span>';
-        case 'ready': return '<span class="badge bg-success">Ready</span>';
-        case 'completed': return '<span class="badge bg-primary">Completed</span>';
-        case 'cancelled': return '<span class="badge bg-danger">Cancelled</span>';
-        default: return '<span class="badge bg-secondary">Unknown</span>';
-    }
+    return match(strtolower($status)) {
+        'pending' => '<span class="badge bg-warning">Pending</span>',
+        'processing' => '<span class="badge bg-info">Processing</span>',
+        'ready' => '<span class="badge bg-success">Ready</span>',
+        'completed' => '<span class="badge bg-primary">Completed</span>',
+        'cancelled' => '<span class="badge bg-danger">Cancelled</span>',
+        default => '<span class="badge bg-secondary">Unknown</span>',
+    };
 }
 ?>
 
@@ -324,9 +324,9 @@ function formatStatus($status) {
                     <div class="stat-card animate__animated animate__zoomIn animate__delay-1s">
                         <div class="stat-number">
                             <?php 
-                            $pending_count = count(array_filter($request_history, function($req) { 
-                                return strtolower($req['status'] ?? 'pending') === 'pending'; 
-                            }));
+                            $pending_count = count(array_filter($request_history, 
+                                fn($req) => strtolower($req['status'] ?? 'pending') === 'pending'
+                            ));
                             echo $pending_count;
                             ?>
                         </div>
@@ -335,9 +335,9 @@ function formatStatus($status) {
                     <div class="stat-card animate__animated animate__zoomIn animate__delay-2s">
                         <div class="stat-number">
                             <?php 
-                            $completed_count = count(array_filter($request_history, function($req) { 
-                                return in_array(strtolower($req['status'] ?? ''), ['completed', 'ready']); 
-                            }));
+                            $completed_count = count(array_filter($request_history, 
+                                fn($req) => in_array(strtolower($req['status'] ?? ''), ['completed', 'ready'])
+                            ));
                             echo $completed_count;
                             ?>
                         </div>

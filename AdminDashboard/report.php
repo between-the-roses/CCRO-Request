@@ -45,17 +45,14 @@ $yearlyData = [
     }
     /* Main Content Styles */
     .main {
-        margin-left: 220px; /* Default margin when sidebar is expanded */
+        /* margin-left: 220px; /* Default margin when sidebar is expanded */
         margin-top: 60px; /* Matches the navbar height */
         padding: 20px;
         background-color: #f8f9fa;
         min-height: calc(100vh - 60px); /* Ensures the content spans the full height */
         transition: margin-left 0.3s ease; /* Smooth transition for content adjustment */
     }
-
-    .sidebar.collapsed ~ .main {
-        margin-left: 0; /* Reset margin when sidebar is collapsed */
-    }
+    
     .user {
       font-size: 16px;
       font-weight: 500;
@@ -102,14 +99,11 @@ $yearlyData = [
 </head>
 <body>
 
-<?php include 'includes/sidebar.php'; ?>
-<?php include 'includes/navbar.php'; ?>
-
 <div class="main">
   <div class="content">
     <!-- Breadcrumb and navigation -->
     <div class="row">
-      <div class="col-md-6">
+      <!-- <div class="col-md-6">
         <div class="breadcrumb-container">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -119,7 +113,7 @@ $yearlyData = [
           </nav>
           <h2>Analytical Reports</h2>
         </div>
-      </div>
+      </div> -->
       <div class="col-md-6 text-end">
         <div class="date-range-selector d-inline-block me-2">
           <span>Date Range:</span>
@@ -141,7 +135,7 @@ $yearlyData = [
       </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Stats Cards
     <div class="row mb-4">
       <div class="col-md-3">
         <div class="card-box">
@@ -167,7 +161,7 @@ $yearlyData = [
           <h2><?= $deathCount ?></h2>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Time Period Toggle -->
     <div class="time-period-toggle">
